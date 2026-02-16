@@ -22,6 +22,9 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, relationship
+from sqlalchemy.ext.hybrid import hybrid_property
+
+from db.encrypted_type import EncryptedString
 
 
 class Base(DeclarativeBase):
@@ -147,9 +150,9 @@ class Party(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     case_id = Column(UUID(as_uuid=True), ForeignKey("cases.id", ondelete="CASCADE"), nullable=False)
     role = Column(Enum(PartyRole), nullable=False)
-    name = Column(String(255), nullable=False)
-    address = Column(Text, nullable=True)
-    phone = Column(String(20), nullable=True)
+    name = Column(EncryptedString, nullable=False)
+    address = Column(EncryptedString, nullable=True)
+    phone = Column(EncryptedString, nullable=True)
 
     case = relationship("Case", back_populates="parties")
 
@@ -175,6 +178,10 @@ class Evidence(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     case = relationship("Case", back_populates="evidence")
+
+    @hybrid_property
+    def has_file(self) -> bool:
+        return self.file_path is not None
 
 
 class TimelineEvent(Base):
@@ -237,7 +244,24 @@ class HearingMessage(Base):
     hearing = relationship("Hearing", back_populates="messages")
 
 
-class Judgment(Base):
+class JudgmentColumnsMixin:
+    """Columns shared between Judgment and ComparisonResult.
+
+    Keeps the judgment schema DRY — any column added here is automatically
+    available in both single-judge judgments and multi-judge comparison results.
+    """
+
+    findings_of_fact = Column(JSONB, nullable=False)
+    conclusions_of_law = Column(JSONB, nullable=False)
+    judgment_text = Column(Text, nullable=False)
+    rationale = Column(Text, nullable=False)
+    awarded_amount = Column(Numeric(10, 2), nullable=True)
+    in_favor_of = Column(Enum(PartyRole), nullable=False)
+    evidence_scores = Column(JSONB, nullable=True)
+    reasoning_chain = Column(JSONB, nullable=True)
+
+
+class Judgment(JudgmentColumnsMixin, Base):
     """AI-generated judgment with full reasoning chain and formal document."""
 
     __tablename__ = "judgments"
@@ -249,14 +273,6 @@ class Judgment(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     case_id = Column(UUID(as_uuid=True), ForeignKey("cases.id", ondelete="CASCADE"), nullable=False, unique=True)
     archetype_id = Column(String(50), nullable=False)
-    findings_of_fact = Column(JSONB, nullable=False)  # numbered list
-    conclusions_of_law = Column(JSONB, nullable=False)  # with statute citations
-    judgment_text = Column(Text, nullable=False)
-    rationale = Column(Text, nullable=False)
-    awarded_amount = Column(Numeric(10, 2), nullable=True)
-    in_favor_of = Column(Enum(PartyRole), nullable=False)
-    evidence_scores = Column(JSONB, nullable=True)  # per-element scoring breakdown
-    reasoning_chain = Column(JSONB, nullable=True)  # full chain for transparency
     advisory = Column(JSONB, nullable=True)  # case strategy and recommendations
     prompt_version_id = Column(UUID(as_uuid=True), ForeignKey("prompt_versions.id", ondelete="SET NULL"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
@@ -290,7 +306,7 @@ class ComparisonRun(Base):
     )
 
 
-class ComparisonResult(Base):
+class ComparisonResult(JudgmentColumnsMixin, Base):
     """Single judge output stored under a comparison run."""
 
     __tablename__ = "comparison_results"
@@ -303,14 +319,6 @@ class ComparisonResult(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     run_id = Column(UUID(as_uuid=True), ForeignKey("comparison_runs.id", ondelete="CASCADE"), nullable=False)
     archetype_id = Column(String(50), nullable=False)
-    findings_of_fact = Column(JSONB, nullable=False)
-    conclusions_of_law = Column(JSONB, nullable=False)
-    judgment_text = Column(Text, nullable=False)
-    rationale = Column(Text, nullable=False)
-    awarded_amount = Column(Numeric(10, 2), nullable=True)
-    in_favor_of = Column(Enum(PartyRole), nullable=False)
-    evidence_scores = Column(JSONB, nullable=True)
-    reasoning_chain = Column(JSONB, nullable=True)
     metadata_ = Column("metadata", JSONB, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 

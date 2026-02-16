@@ -36,6 +36,7 @@ from models.schemas import (
     JudgmentRequest,
     JudgmentResponse,
 )
+from services.hearing_service import extract_party_names
 
 router = APIRouter()
 settings = get_settings()
@@ -43,17 +44,6 @@ judgment_limiter = FixedWindowRateLimiter(
     max_requests=settings.judgment_requests_per_minute,
     window_seconds=60,
 )
-
-
-def _extract_party_names(case: Case) -> tuple[str, str]:
-    plaintiff_name = "Plaintiff"
-    defendant_name = "Defendant"
-    for party in case.parties:
-        if party.role == PartyRole.PLAINTIFF:
-            plaintiff_name = party.name
-        elif party.role == PartyRole.DEFENDANT:
-            defendant_name = party.name
-    return plaintiff_name, defendant_name
 
 
 def _extract_hearing_transcript(hearing: Hearing | None) -> list[dict] | None:
@@ -150,7 +140,7 @@ async def generate_judgment(
             message="Judgment already exists for this case.",
         )
 
-    plaintiff_name, defendant_name = _extract_party_names(case)
+    plaintiff_name, defendant_name = extract_party_names(case)
     hearing_transcript = _extract_hearing_transcript(hearing)
 
     # Run the pipeline
@@ -360,7 +350,7 @@ async def run_or_reuse_comparison(
         await db.delete(existing)
         await db.flush()
 
-    plaintiff_name, defendant_name = _extract_party_names(case)
+    plaintiff_name, defendant_name = extract_party_names(case)
     hearing_transcript = _extract_hearing_transcript(hearing)
     comparison_run = ComparisonRun(
         case_id=case_id,

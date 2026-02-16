@@ -30,7 +30,7 @@ The frontend `ApiClientError` class parses `backendCode` and `retryable` from it
 | Code                            | HTTP | Retryable | When                                                  |
 |---------------------------------|------|:---------:|-------------------------------------------------------|
 | `bad_request`                   | 400  | no        | Generic invalid request                               |
-| `unauthorized`                  | 401  | no        | Missing `X-Session-Id` header                         |
+| `unauthorized`                  | 401  | no        | Missing session identifier (cookie or `X-Session-Id` header) |
 | `forbidden`                     | 403  | no        | Non-admin session tried an admin endpoint             |
 | `not_found`                     | 404  | no        | Resource does not exist                               |
 | `conflict`                      | 409  | no        | Duplicate party, existing judgment, etc.              |
@@ -48,6 +48,7 @@ The frontend `ApiClientError` class parses `backendCode` and `retryable` from it
 | `comparison_missing_narratives` | 400  | no        | Both narratives required before comparison            |
 | `comparison_archetypes_required`| 400  | no        | Empty archetype list in request                       |
 | `comparison_run_not_found`      | 404  | no        | Run ID does not belong to this case                   |
+| `admin_login_rate_limited`      | 429  | yes       | Admin login brute-force limit hit (5 per 15 min)      |
 | `corpus_ingest_failed`          | 500  | yes       | Zero chunks produced during ingest                    |
 | `internal_error`                | 500  | yes       | Unhandled server exception                            |
 
@@ -79,8 +80,11 @@ Expensive POST endpoints (`generateJudgment`, `ingestCorpus`, `searchCorpus`) no
 | `JUDGMENT_REQUESTS_PER_MINUTE`       | 30      | per session | 60 s      |
 | `CORPUS_SEARCH_REQUESTS_PER_MINUTE`  | 120     | per session | 60 s      |
 | `CORPUS_INGEST_REQUESTS_PER_HOUR`    | 4       | per session | 3600 s    |
+| Admin login                          | 5       | per session | 900 s     |
 
 Comparison runs share the judgment limiter (each `POST /comparison-runs` counts as one check against it).
+
+> **Brute-force protection:** Failed admin login attempts also incur a deliberate 1-second server-side delay before the 403 response is returned.
 
 ---
 
@@ -177,3 +181,86 @@ This means a cached run is invalidated automatically if:
 - Different archetypes are selected
 
 To force re-execution even when the key matches, send `force_refresh: true`.
+
+---
+
+## Session Authentication
+
+Sessions are identified by an **httpOnly, SameSite=Strict cookie** named `session_id`. The cookie is set automatically when a session is created (`POST /sessions`) or on successful admin login (`POST /auth/admin-login`).
+
+For non-browser clients, the `X-Session-Id` header is still accepted as a fallback. When both are present, the cookie takes precedence.
+
+| Transport        | Mechanism                        | Notes                                         |
+|------------------|----------------------------------|-----------------------------------------------|
+| Browser (fetch)  | `credentials: "include"` cookie  | Primary — httpOnly, SameSite=Strict, Secure*  |
+| Non-browser / WS | `X-Session-Id` header            | Fallback — also accepted on WebSocket upgrade |
+
+\* The `Secure` flag is enabled when the app is not running in debug mode.
+
+---
+
+## Evidence Endpoints
+
+### `POST /cases/{case_id}/evidence`
+
+Upload evidence for a case. Files are **encrypted at rest** using Fernet (AES-128-CBC) before being written to disk.
+
+**Response** (`EvidenceResponse`):
+
+```json
+{
+  "id": "uuid",
+  "case_id": "uuid",
+  "party": "plaintiff",
+  "evidence_type": "document",
+  "description": "Signed contract",
+  "has_file": true,
+  "created_at": "2026-02-15T12:00:00Z"
+}
+```
+
+> **Breaking change:** The `file_path` field has been replaced with `has_file` (boolean). Internal server paths are no longer exposed in API responses.
+
+### `GET /cases/{case_id}/evidence/{evidence_id}/download`
+
+Download an evidence file. The file is decrypted on the fly and returned as `application/octet-stream`. Requires ownership — the requesting session must own the case.
+
+**Response:** Binary file stream with `Content-Disposition: attachment`.
+
+**Errors:**
+- `404` if the evidence record or file does not exist.
+- `403` if the session does not own the case.
+
+---
+
+## Input Validation Constraints
+
+All user-supplied text fields enforce `max_length` at the Pydantic schema layer. Requests exceeding these limits receive a `422 validation_error` response.
+
+| Field                                  | Max Length |
+|----------------------------------------|------------|
+| `PartyCreate.name`                     | 255        |
+| `PartyCreate.address`                  | 500        |
+| `PartyCreate.phone`                    | 20         |
+| `EvidenceCreate.description`           | 5,000      |
+| `TimelineEventCreate.description`      | 5,000      |
+| `CaseCreate.plaintiff_narrative`       | 50,000     |
+| `CaseCreate.defendant_narrative`       | 50,000     |
+| `CaseUpdate.plaintiff_narrative`       | 50,000     |
+| `CaseUpdate.defendant_narrative`       | 50,000     |
+| `CaseUpdate.archetype_id`             | 50         |
+| `HearingMessageCreate.content`         | 10,000     |
+| `CorpusSearchRequest.query`            | 1,000      |
+
+---
+
+## WebSocket Message Limits
+
+Hearing WebSocket connections enforce a maximum message length of **10,000 characters**. Messages exceeding this limit are rejected with an error JSON payload on the WebSocket and are not processed.
+
+```json
+{
+  "type": "error",
+  "message": "Message too long (max 10000 characters)"
+}
+```

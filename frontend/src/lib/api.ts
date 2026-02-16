@@ -175,6 +175,7 @@ async function request<T>(
       : 0);
   const timeoutMs = config.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const fetchOptions: RequestInit = {
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
       ...options.headers,
@@ -220,28 +221,29 @@ async function request<T>(
 }
 
 // ─── Session ──────────────────────────────────────────────────────────────────
+// Session IDs are managed via httpOnly cookies set by the backend.
+// We keep a lightweight in-memory copy of the session ID (from API responses)
+// so the frontend can reference it for display and WebSocket query params.
+// The cookie is the authoritative auth credential — never stored in localStorage.
 
-const SESSION_KEY = "ai_judge_session_id";
+let _cachedSessionId: string | null = null;
 
 export function getStoredSessionId(): string | null {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem(SESSION_KEY);
+  return _cachedSessionId;
 }
 
 export function storeSessionId(id: string): void {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(SESSION_KEY, id);
+  _cachedSessionId = id;
 }
 
 export async function createSession(): Promise<Session> {
   const session = await request<Session>("/sessions", { method: "POST" });
-  storeSessionId(session.id);
+  _cachedSessionId = session.id;
   return session;
 }
 
 export async function getOrCreateSession(): Promise<string> {
-  const existing = getStoredSessionId();
-  if (existing) return existing;
+  if (_cachedSessionId) return _cachedSessionId;
   const session = await createSession();
   return session.id;
 }
@@ -342,6 +344,7 @@ export async function addEvidence(
       url,
       {
         method: "POST",
+        credentials: "include",
         headers: { "X-Session-Id": sessionId },
         body: formData,
       },

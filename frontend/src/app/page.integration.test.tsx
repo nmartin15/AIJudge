@@ -318,7 +318,7 @@ describe("Home page integration flows", () => {
         evidence_type: "document",
         title: "Evidence title",
         description: null,
-        file_path: null,
+        has_file: false,
         score: null,
         score_explanation: null,
         created_at: nowIso(),

@@ -1,42 +1,24 @@
 """Hearing simulation API endpoints with WebSocket support."""
 
-import json
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect
-from sqlalchemy import select, func
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from api.guardrails import api_error
 from api.security import get_owned_case, require_session_id, required_session_header
 from db.connection import get_db, AsyncSessionLocal
-from models.database import Case, CaseStatus, Hearing, HearingMessage, HearingMessageRole, Party, PartyRole
+from models.database import Case, CaseStatus, Hearing, HearingMessage, HearingMessageRole
 from models.schemas import HearingResponse, HearingStart, HearingMessageCreate
 from personas.archetypes import get_archetype
 from prompts.system_prompts import generate_hearing_message
+from services.hearing_service import build_case_context, process_hearing_exchange
 
 router = APIRouter()
 
-
-def _build_case_context(case: Case, parties: list) -> dict:
-    """Build the context dict for the hearing prompt."""
-    plaintiff_name = "Plaintiff"
-    defendant_name = "Defendant"
-    for p in parties:
-        if p.role == PartyRole.PLAINTIFF:
-            plaintiff_name = p.name
-        elif p.role == PartyRole.DEFENDANT:
-            defendant_name = p.name
-
-    return {
-        "case_type": case.case_type.value if case.case_type else "unknown",
-        "plaintiff_name": plaintiff_name,
-        "defendant_name": defendant_name,
-        "plaintiff_narrative": case.plaintiff_narrative or "",
-        "defendant_narrative": case.defendant_narrative or "",
-        "claimed_amount": float(case.claimed_amount) if case.claimed_amount else 0,
-    }
+MAX_WS_MESSAGE_LENGTH = 10_000
 
 
 @router.post("/cases/{case_id}/hearing", response_model=HearingResponse)
@@ -47,7 +29,6 @@ async def start_hearing(
     db: AsyncSession = Depends(get_db),
 ):
     """Start a hearing simulation for a case."""
-    # Load case with parties
     case = await get_owned_case(
         db,
         case_id,
@@ -74,7 +55,7 @@ async def start_hearing(
     await db.flush()
 
     # Generate opening statement
-    case_context = _build_case_context(case, case.parties)
+    case_context = build_case_context(case, case.parties)
     opening = await generate_hearing_message(
         archetype_id=body.archetype_id,
         case_context=case_context,
@@ -147,12 +128,17 @@ async def hearing_websocket(websocket: WebSocket, case_id: str):
     try:
         session_uuid = require_session_id(session_candidate)
     except HTTPException as exc:
-        await websocket.close(code=4401 if exc.status_code == 401 else 1008, reason=exc.detail)
+        # api_error() sets detail as a dict envelope; extract the message for WS close reason
+        if isinstance(exc.detail, dict):
+            reason = exc.detail.get("error", {}).get("message", "Authentication error")
+        else:
+            reason = str(exc.detail)
+        await websocket.close(code=4401 if exc.status_code == 401 else 1008, reason=reason)
         return
 
     await websocket.accept()
 
-    # ── Initial load: fetch hearing + case context, then release connection ──
+    # Initial load: fetch hearing + case context, then release connection
     try:
         async with AsyncSessionLocal() as db:
             result = await db.execute(
@@ -176,14 +162,13 @@ async def hearing_websocket(websocket: WebSocket, case_id: str):
                 .options(selectinload(Case.parties))
             )
             case = case_result.scalar_one()
-            case_context = _build_case_context(case, case.parties)
+            case_context = build_case_context(case, case.parties)
 
             existing_messages = [
                 {"role": msg.role.value, "content": msg.content, "sequence": msg.sequence}
                 for msg in sorted(hearing.messages, key=lambda m: m.sequence)
             ]
 
-        # Send existing messages (connection already released)
         for msg_data in existing_messages:
             await websocket.send_json(msg_data)
 
@@ -196,7 +181,7 @@ async def hearing_websocket(websocket: WebSocket, case_id: str):
             pass
         return
 
-    # ── Message loop: acquire a fresh DB session per exchange ────────────
+    # Message loop: acquire a fresh DB session per exchange
     try:
         while True:
             data = await websocket.receive_json()
@@ -204,6 +189,12 @@ async def hearing_websocket(websocket: WebSocket, case_id: str):
             content = data.get("content", "")
 
             if not content:
+                continue
+
+            if len(content) > MAX_WS_MESSAGE_LENGTH:
+                await websocket.send_json({
+                    "error": f"Message too long. Maximum {MAX_WS_MESSAGE_LENGTH} characters."
+                })
                 continue
 
             try:
@@ -215,69 +206,29 @@ async def hearing_websocket(websocket: WebSocket, case_id: str):
                 await websocket.send_json({"error": f"Invalid role: {role_str}"})
                 continue
 
-            # Short-lived DB session for this message exchange
+            # Delegate to the shared hearing service
             async with AsyncSessionLocal() as db:
                 try:
-                    seq_result = await db.execute(
-                        select(func.max(HearingMessage.sequence))
-                        .where(HearingMessage.hearing_id == hearing_id)
-                    )
-                    max_seq = seq_result.scalar() or 0
-
-                    user_msg = HearingMessage(
+                    exchange = await process_hearing_exchange(
+                        db,
                         hearing_id=hearing_id,
-                        role=role_enum,
-                        content=content,
-                        sequence=max_seq + 1,
-                    )
-                    db.add(user_msg)
-                    await db.flush()
-
-                    msgs_result = await db.execute(
-                        select(HearingMessage)
-                        .where(HearingMessage.hearing_id == hearing_id)
-                        .order_by(HearingMessage.sequence)
-                    )
-                    history = [
-                        {"role": m.role.value, "content": m.content}
-                        for m in msgs_result.scalars().all()
-                    ]
-
-                    # LLM call happens while we still hold the session (need to
-                    # save the judge message in the same transaction)
-                    judge_response = await generate_hearing_message(
                         archetype_id=archetype_id,
                         case_context=case_context,
-                        conversation_history=history,
+                        user_role=role_enum,
+                        user_content=content,
                     )
-
-                    judge_msg = HearingMessage(
-                        hearing_id=hearing_id,
-                        role=HearingMessageRole.JUDGE,
-                        content=judge_response["content"],
-                        sequence=max_seq + 2,
-                    )
-                    db.add(judge_msg)
-
-                    concluded = "hearing is now concluded" in judge_response["content"].lower()
-                    if concluded:
-                        hearing_obj = await db.get(Hearing, hearing_id)
-                        if hearing_obj:
-                            hearing_obj.completed_at = func.now()
-
                     await db.commit()
                 except Exception:
                     await db.rollback()
                     raise
 
-            # Send response after DB session is released
             await websocket.send_json({
                 "role": HearingMessageRole.JUDGE.value,
-                "content": judge_response["content"],
-                "sequence": max_seq + 2,
+                "content": exchange.judge_content,
+                "sequence": exchange.judge_sequence,
             })
 
-            if concluded:
+            if exchange.concluded:
                 await websocket.send_json({"event": "hearing_concluded"})
 
     except WebSocketDisconnect:
@@ -302,7 +253,6 @@ async def post_hearing_message(
     """
     await get_owned_case(db, case_id, session_id)
 
-    # Load hearing
     result = await db.execute(
         select(Hearing)
         .where(Hearing.case_id == case_id)
@@ -322,62 +272,29 @@ async def post_hearing_message(
             message="This hearing has already concluded.",
         )
 
-    # Load case
     case_result = await db.execute(
         select(Case)
         .where(Case.id == case_id)
         .options(selectinload(Case.parties))
     )
     case = case_result.scalar_one()
-    case_context = _build_case_context(case, case.parties)
+    case_context = build_case_context(case, case.parties)
 
-    # Get next sequence
-    max_seq = max((m.sequence for m in hearing.messages), default=0)
-
-    # Save user message (convert PartyRole to HearingMessageRole)
-    user_msg = HearingMessage(
+    # Delegate to the shared hearing service
+    exchange = await process_hearing_exchange(
+        db,
         hearing_id=hearing.id,
-        role=HearingMessageRole(body.role.value),
-        content=body.content,
-        sequence=max_seq + 1,
-    )
-    db.add(user_msg)
-    await db.flush()
-
-    # Build conversation history
-    history = [
-        {"role": m.role.value, "content": m.content}
-        for m in sorted(hearing.messages, key=lambda m: m.sequence)
-    ]
-    history.append({"role": body.role.value, "content": body.content})
-
-    # Generate judge response
-    judge_response = await generate_hearing_message(
         archetype_id=hearing.archetype_id,
         case_context=case_context,
-        conversation_history=history,
+        user_role=HearingMessageRole(body.role.value),
+        user_content=body.content,
     )
-
-    judge_msg = HearingMessage(
-        hearing_id=hearing.id,
-        role=HearingMessageRole.JUDGE,
-        content=judge_response["content"],
-        sequence=max_seq + 2,
-    )
-    db.add(judge_msg)
-    await db.flush()
-
-    concluded = "hearing is now concluded" in judge_response["content"].lower()
-    if concluded:
-        from sqlalchemy import func as sqlfunc
-        hearing.completed_at = sqlfunc.now()
-        await db.flush()
 
     return {
         "judge_message": {
             "role": HearingMessageRole.JUDGE.value,
-            "content": judge_response["content"],
-            "sequence": max_seq + 2,
+            "content": exchange.judge_content,
+            "sequence": exchange.judge_sequence,
         },
-        "hearing_concluded": concluded,
+        "hearing_concluded": exchange.concluded,
     }

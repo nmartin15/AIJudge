@@ -9,8 +9,8 @@ class Settings(BaseSettings):
     app_name: str = "Wyoming AI Judge"
     debug: bool = False
 
-    # Database
-    database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/ai_judge"
+    # Database — no default credentials; must be set via DATABASE_URL env var or .env
+    database_url: str = ""
 
     # LLM API Keys
     openai_api_key: str = ""
@@ -31,6 +31,10 @@ class Settings(BaseSettings):
 
     # Auth / Roles
     admin_api_keys: list[str] = []
+
+    # Field-level encryption for PII (names, addresses, phones)
+    # Generate with: python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+    field_encryption_key: str = ""
 
     # Session cleanup
     session_max_idle_days: int = 30  # purge sessions inactive for this many days

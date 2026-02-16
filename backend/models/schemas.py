@@ -47,8 +47,8 @@ class AdminLoginRequest(BaseModel):
 class PartyCreate(BaseModel):
     role: PartyRole
     name: str = Field(..., min_length=1, max_length=255)
-    address: str | None = None
-    phone: str | None = None
+    address: str | None = Field(None, max_length=500)
+    phone: str | None = Field(None, max_length=20)
 
 
 class PartyResponse(BaseModel):
@@ -69,7 +69,7 @@ class EvidenceCreate(BaseModel):
     submitted_by: PartyRole
     evidence_type: EvidenceType
     title: str = Field(..., min_length=1, max_length=255)
-    description: str | None = None
+    description: str | None = Field(None, max_length=5_000)
 
 
 class EvidenceResponse(BaseModel):
@@ -79,12 +79,28 @@ class EvidenceResponse(BaseModel):
     evidence_type: EvidenceType
     title: str
     description: str | None
-    file_path: str | None
+    has_file: bool = False
     score: int | None
     score_explanation: str | None
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+    @classmethod
+    def from_evidence(cls, evidence) -> "EvidenceResponse":
+        """Build response without leaking internal file_path."""
+        return cls(
+            id=evidence.id,
+            case_id=evidence.case_id,
+            submitted_by=evidence.submitted_by,
+            evidence_type=evidence.evidence_type,
+            title=evidence.title,
+            description=evidence.description,
+            has_file=bool(evidence.file_path),
+            score=evidence.score,
+            score_explanation=evidence.score_explanation,
+            created_at=evidence.created_at,
+        )
 
 
 # ─── Timeline ─────────────────────────────────────────────────────────────────
@@ -92,7 +108,7 @@ class EvidenceResponse(BaseModel):
 
 class TimelineEventCreate(BaseModel):
     event_date: datetime
-    description: str = Field(..., min_length=1)
+    description: str = Field(..., min_length=1, max_length=5_000)
     source: PartyRole | None = None
     disputed: bool = False
 
@@ -114,19 +130,19 @@ class TimelineEventResponse(BaseModel):
 
 class CaseCreate(BaseModel):
     case_type: CaseType | None = None
-    plaintiff_narrative: str | None = None
-    defendant_narrative: str | None = None
+    plaintiff_narrative: str | None = Field(None, max_length=50_000)
+    defendant_narrative: str | None = Field(None, max_length=50_000)
     claimed_amount: Decimal | None = Field(None, ge=0, le=6000)
     damages_breakdown: dict | None = None
 
 
 class CaseUpdate(BaseModel):
     case_type: CaseType | None = None
-    plaintiff_narrative: str | None = None
-    defendant_narrative: str | None = None
+    plaintiff_narrative: str | None = Field(None, max_length=50_000)
+    defendant_narrative: str | None = Field(None, max_length=50_000)
     claimed_amount: Decimal | None = Field(None, ge=0, le=6000)
     damages_breakdown: dict | None = None
-    archetype_id: str | None = None
+    archetype_id: str | None = Field(None, max_length=50)
 
 
 class CaseResponse(BaseModel):
@@ -167,7 +183,7 @@ class CaseSummary(BaseModel):
 
 class HearingMessageCreate(BaseModel):
     role: PartyRole  # users can only speak as plaintiff or defendant
-    content: str = Field(..., min_length=1)
+    content: str = Field(..., min_length=1, max_length=10_000)
 
 
 class HearingMessageResponse(BaseModel):
@@ -278,7 +294,7 @@ class CorpusSearchResult(BaseModel):
 
 
 class CorpusSearchRequest(BaseModel):
-    query: str = Field(..., min_length=1)
+    query: str = Field(..., min_length=1, max_length=1_000)
     limit: int = Field(5, ge=1, le=20)
 
 

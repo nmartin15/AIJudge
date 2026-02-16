@@ -31,30 +31,34 @@ logger = logging.getLogger(__name__)
 
 
 async def _purge_stale_sessions() -> int:
-    """Delete sessions that have been idle longer than session_max_idle_days.
+    """Delete sessions idle longer than session_max_idle_days using bulk SQL.
 
-    Uses batch deletion in chunks to avoid loading all stale sessions into
-    memory at once.  Returns the total number of sessions deleted.
+    Performs a single DELETE per batch directly in SQL — no ORM objects loaded
+    into memory.  CASCADE foreign keys handle dependent rows automatically.
+    Returns the total number of sessions deleted.
     """
     cutoff = datetime.now(timezone.utc) - timedelta(days=settings.session_max_idle_days)
-    batch_size = 200
+    batch_size = 500
     total_deleted = 0
 
     while True:
         async with AsyncSessionLocal() as db:
             try:
-                result = await db.execute(
-                    select(SessionModel)
+                # Subquery selects a batch of stale session IDs
+                stale_ids = (
+                    select(SessionModel.id)
                     .where(SessionModel.last_active < cutoff)
                     .limit(batch_size)
+                    .scalar_subquery()
                 )
-                stale = result.scalars().all()
-                if not stale:
-                    break
-                for session in stale:
-                    await db.delete(session)
+                result = await db.execute(
+                    sa.delete(SessionModel).where(SessionModel.id.in_(stale_ids))
+                )
                 await db.commit()
-                total_deleted += len(stale)
+                deleted = result.rowcount
+                total_deleted += deleted
+                if deleted < batch_size:
+                    break
             except Exception:
                 await db.rollback()
                 raise
@@ -117,6 +121,9 @@ app = FastAPI(
     description="AI-powered small claims court simulation for Wyoming jurisdiction",
     version="0.1.0",
     lifespan=lifespan,
+    docs_url="/docs" if settings.debug else None,
+    redoc_url="/redoc" if settings.debug else None,
+    openapi_url="/openapi.json" if settings.debug else None,
 )
 
 class RequestIdMiddleware(BaseHTTPMiddleware):
@@ -135,8 +142,13 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=[
+        "Content-Type",
+        "X-Session-Id",
+        "X-Admin-Key",
+        "X-Request-Id",
+    ],
     expose_headers=["X-Request-Id"],
 )
 
@@ -160,7 +172,8 @@ app.add_exception_handler(Exception, unhandled_exception_handler)
 
 
 @app.get("/health")
-async def health_check():
+async def health_check(detail: bool = False):
+    """Public health check. Add ?detail=true with a valid admin session for internals."""
     db_ok = False
     try:
         async with engine.connect() as conn:
@@ -173,13 +186,17 @@ async def health_check():
     response: dict[str, object] = {
         "status": status,
         "service": settings.app_name,
-        "version": "0.1.0",
-        "checks": {
-            "database": "ok" if db_ok else "unreachable",
-        },
     }
-    try:
-        response["pool"] = get_pool_status()
-    except Exception:
-        response["pool"] = "unavailable"
+
+    # Only expose internal diagnostics when explicitly requested
+    if detail:
+        response["version"] = "0.1.0"
+        response["checks"] = {
+            "database": "ok" if db_ok else "unreachable",
+        }
+        try:
+            response["pool"] = get_pool_status()
+        except Exception:
+            response["pool"] = "unavailable"
+
     return response

@@ -22,7 +22,11 @@ AsyncSessionLocal = async_sessionmaker(
 
 
 async def get_db():
-    """FastAPI dependency that yields an async database session."""
+    """FastAPI dependency that yields an async database session.
+
+    Commits on success, rolls back on error.  Use ``get_db_readonly`` for
+    endpoints that only read data (avoids an unnecessary COMMIT round-trip).
+    """
     async with AsyncSessionLocal() as session:
         try:
             yield session
@@ -31,6 +35,20 @@ async def get_db():
             await session.rollback()
             raise
         finally:
+            await session.close()
+
+
+async def get_db_readonly():
+    """FastAPI dependency for read-only endpoints (no auto-commit).
+
+    The session is rolled back on close, which is safe and avoids the
+    overhead of an explicit COMMIT on pure-read requests.
+    """
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+        finally:
+            await session.rollback()
             await session.close()
 
 

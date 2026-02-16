@@ -72,7 +72,7 @@ export interface Evidence {
   evidence_type: EvidenceType;
   title: string;
   description: string | null;
-  file_path: string | null;
+  has_file: boolean;
   score: number | null;
   score_explanation: string | null;
   created_at: string;

@@ -42,6 +42,16 @@ npm run dev
 
 If backend mode fails at runtime, the UI falls back to mock results and shows a warning.
 
+## Session Management
+
+When running in backend mode, sessions are managed via **httpOnly cookies** set by the backend. The frontend uses `credentials: "include"` on all `fetch` calls so the session cookie is sent automatically.
+
+- **Cookie-based auth** is the primary mechanism. The backend sets a `session_id` cookie (httpOnly, SameSite=Strict) on session creation and admin login.
+- A lightweight **in-memory session ID** is kept for display purposes and for passing the session as a query parameter on WebSocket connections.
+- `localStorage` is **no longer used** for session storage.
+
+> **Note for developers:** Because sessions rely on cookies, the frontend and backend must share the same origin (or be proxied through nginx) for cookies to be sent. The Docker Compose setup and nginx config handle this automatically.
+
 ## Tests
 
 Run unit/component tests with:

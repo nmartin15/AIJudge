@@ -27,13 +27,19 @@ AI-powered small claims court simulation for Wyoming jurisdiction. An educationa
 The easiest way to run everything — Postgres with pgvector, the backend, and the frontend — is with Docker Compose:
 
 ```bash
-cp .env.example .env          # Add your OPENAI_API_KEY and ANTHROPIC_API_KEY
+cp .env.example .env          # Add your API keys (see below)
 docker compose up --build
 ```
 
+You **must** set at minimum:
+
+- `OPENAI_API_KEY` and `ANTHROPIC_API_KEY` — required for AI functionality
+- `POSTGRES_PASSWORD` — change the default before any deployment
+- `FIELD_ENCRYPTION_KEY` — required for PII encryption at rest (generate with the command in `.env.example`)
+
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:8000
-- API docs: http://localhost:8000/docs
+- API docs: http://localhost:8000/docs (debug mode only — disabled in production)
 
 On first launch, run the database migration:
 
@@ -57,12 +63,12 @@ python -m venv .venv
 .venv\Scripts\activate        # Windows
 # source .venv/bin/activate   # macOS/Linux
 pip install -r requirements.txt
-cp ../.env.example .env       # Edit with your API keys and DB credentials
+cp ../.env.example .env       # Edit with your API keys, DB credentials, and encryption key
 alembic upgrade head          # Create database tables
 uvicorn main:app --reload
 ```
 
-Backend runs at http://localhost:8000. API docs at http://localhost:8000/docs.
+Backend runs at http://localhost:8000. API docs at http://localhost:8000/docs (requires `DEBUG=true`).
 
 #### Frontend
 
@@ -117,7 +123,52 @@ backend/           Python/FastAPI backend
   corpus/          Legal corpus ingestion and RAG
   models/          Database models and Pydantic schemas
   prompts/         System prompts and templates
-  db/              Database connection
+  db/              Database connection and encrypted column types
+  crypto.py        Fernet encryption helpers for PII and file at-rest encryption
 frontend/          Next.js frontend application
+nginx/             Nginx reverse-proxy configuration and security headers
+docs/              API contract and developer documentation
 docker-compose.yml Docker orchestration (Postgres + Backend + Frontend)
 ```
+
+## Security
+
+This application includes several security hardening measures:
+
+### PII Encryption at Rest
+
+Party names, addresses, and phone numbers are encrypted in the database using Fernet symmetric encryption (AES-128-CBC). Evidence files uploaded by users are also encrypted on disk before storage. Set the `FIELD_ENCRYPTION_KEY` environment variable to enable encryption (see `.env.example` for generation instructions). If the key is not set, encryption is silently skipped (development only — **always set a key in production**).
+
+### Session Management
+
+Sessions use **httpOnly, SameSite=Strict cookies** as the primary credential transport. The `X-Session-Id` header is still accepted as a fallback for non-browser clients. The frontend sends `credentials: "include"` on all requests so the cookie is attached automatically.
+
+### Input Validation
+
+All user-supplied text fields enforce `max_length` constraints at the API layer:
+
+- Narratives: 50,000 characters
+- Evidence/timeline descriptions: 5,000 characters
+- Hearing messages: 10,000 characters (also enforced on WebSocket)
+- Corpus search queries: 1,000 characters
+
+### Rate Limiting & Brute-Force Protection
+
+- Judgment, comparison, corpus search, and corpus ingest endpoints are rate-limited per session (see `docs/api-contract.md` for details).
+- Admin login is limited to **5 attempts per 15 minutes** per session with a deliberate 1-second delay on failed attempts.
+
+### HTTP Security Headers (nginx)
+
+The nginx reverse proxy adds:
+
+- `Content-Security-Policy` — restrictive policy allowing `'self'`, inline scripts/styles (Next.js), `data:`/`blob:` images, and `ws:`/`wss:` WebSockets.
+- `Permissions-Policy` — disables camera, microphone, geolocation, and payment APIs.
+- `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy` — standard protections.
+- `Strict-Transport-Security` — pre-configured and ready to enable when HTTPS is active.
+
+### Production Hardening
+
+- **Swagger/ReDoc disabled** — API documentation endpoints are only served when `DEBUG=true`.
+- **CORS tightened** — Explicit method and header allowlists replace wildcards.
+- **Health endpoint** — Returns minimal info by default; detailed diagnostics require `?detail=true`.
+- **No internal path leakage** — Evidence responses return a `has_file` boolean instead of the server file path.

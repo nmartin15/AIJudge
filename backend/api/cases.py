@@ -1,24 +1,24 @@
 """Case management API endpoints."""
 
-import os
-import re
 import uuid
-from pathlib import Path
 
-from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, Form
+import fastapi
+from fastapi import APIRouter, Depends, Query, UploadFile, File, Form
+from fastapi.responses import Response as RawResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from config import get_settings
+from api.guardrails import api_error
 from db.connection import get_db
 from api.security import (
     apply_admin_claim,
     get_or_create_session,
     get_owned_case,
     optional_admin_key_header,
-    optional_session_header,
+    optional_session_id,
     required_session_header,
+    set_session_cookie,
 )
 from models.database import (
     Case,
@@ -32,34 +32,17 @@ from models.database import (
 from models.schemas import (
     CaseCreate,
     CaseResponse,
-    CaseSummary,
     CaseUpdate,
-    EvidenceCreate,
     EvidenceResponse,
     PartyCreate,
     PartyResponse,
-    SessionCreate,
     SessionResponse,
     TimelineEventCreate,
     TimelineEventResponse,
 )
+from services import file_service
 
-settings = get_settings()
 router = APIRouter()
-MAX_UPLOAD_SIZE_BYTES = settings.max_upload_size_mb * 1024 * 1024
-ALLOWED_UPLOAD_EXTENSIONS = {
-    ".pdf",
-    ".png",
-    ".jpg",
-    ".jpeg",
-    ".webp",
-    ".txt",
-    ".csv",
-    ".doc",
-    ".docx",
-    ".eml",
-    ".msg",
-}
 
 
 # ─── Session Endpoints ────────────────────────────────────────────────────────
@@ -67,6 +50,7 @@ ALLOWED_UPLOAD_EXTENSIONS = {
 
 @router.post("/sessions", response_model=SessionResponse)
 async def create_session(
+    response: fastapi.Response,
     admin_key: str | None = Depends(optional_admin_key_header),
     db: AsyncSession = Depends(get_db),
 ):
@@ -76,6 +60,7 @@ async def create_session(
     db.add(session)
     await db.flush()
     await db.refresh(session)
+    set_session_cookie(response, str(session.id))
     return session
 
 
@@ -85,7 +70,7 @@ async def create_session(
 @router.post("/cases", response_model=CaseResponse)
 async def create_case(
     body: CaseCreate,
-    session_id: str | None = Depends(optional_session_header),
+    session_id: str | None = Depends(optional_session_id),
     db: AsyncSession = Depends(get_db),
 ):
     """Create a new case. If no session_id provided, creates a new session."""
@@ -152,17 +137,18 @@ async def update_case(
 
     await db.flush()
 
-    case = await get_owned_case(
-        db,
-        case_id,
-        session_id,
-        options=(
+    # Expire the instance and reload with all relationships in a single query
+    await db.refresh(case)
+    result = await db.execute(
+        select(Case)
+        .where(Case.id == case_id)
+        .options(
             selectinload(Case.parties),
             selectinload(Case.evidence),
             selectinload(Case.timeline_events),
-        ),
+        )
     )
-    return case
+    return result.scalar_one()
 
 
 # ─── Party Endpoints ──────────────────────────────────────────────────────────
@@ -183,9 +169,10 @@ async def add_party(
         select(Party).where(Party.case_id == case_id, Party.role == body.role)
     )
     if existing.scalar_one_or_none():
-        raise HTTPException(
+        raise api_error(
             status_code=409,
-            detail=f"{body.role.value} already exists for this case",
+            code="party_exists",
+            message=f"{body.role.value} already exists for this case",
         )
 
     party = Party(case_id=case_id, **body.model_dump())
@@ -214,34 +201,7 @@ async def add_evidence(
 
     file_path = None
     if file:
-        upload_dir = os.path.join(settings.upload_dir, str(case_id))
-        os.makedirs(upload_dir, exist_ok=True)
-
-        original_name = Path(file.filename or "").name
-        sanitized_name = re.sub(r"[^A-Za-z0-9._-]", "_", original_name).strip("._")
-        if not sanitized_name:
-            raise HTTPException(status_code=400, detail="Invalid filename")
-
-        extension = Path(sanitized_name).suffix.lower()
-        if extension not in ALLOWED_UPLOAD_EXTENSIONS:
-            raise HTTPException(status_code=400, detail="Unsupported file type")
-
-        file_path = os.path.join(upload_dir, f"{uuid.uuid4()}_{sanitized_name}")
-        total_size = 0
-        try:
-            with open(file_path, "wb") as f:
-                while chunk := await file.read(64 * 1024):  # 64 KB chunks
-                    total_size += len(chunk)
-                    if total_size > MAX_UPLOAD_SIZE_BYTES:
-                        raise HTTPException(
-                            status_code=413,
-                            detail=f"File too large. Max size is {settings.max_upload_size_mb}MB",
-                        )
-                    f.write(chunk)
-        except HTTPException:
-            if os.path.exists(file_path):
-                os.remove(file_path)
-            raise
+        file_path = await file_service.save_upload(file, case_id)
 
     evidence = Evidence(
         case_id=case_id,
@@ -254,7 +214,40 @@ async def add_evidence(
     db.add(evidence)
     await db.flush()
     await db.refresh(evidence)
-    return evidence
+    return EvidenceResponse.from_evidence(evidence)
+
+
+@router.get("/cases/{case_id}/evidence/{evidence_id}/download")
+async def download_evidence_file(
+    case_id: uuid.UUID,
+    evidence_id: uuid.UUID,
+    session_id: str = Depends(required_session_header),
+    db: AsyncSession = Depends(get_db),
+):
+    """Securely download an evidence file (ownership-checked)."""
+    await get_owned_case(db, case_id, session_id)
+
+    result = await db.execute(
+        select(Evidence).where(Evidence.id == evidence_id, Evidence.case_id == case_id)
+    )
+    evidence = result.scalar_one_or_none()
+    if not evidence or not evidence.file_path:
+        raise api_error(
+            status_code=404,
+            code="evidence_file_not_found",
+            message="Evidence file not found",
+        )
+
+    plaintext = file_service.read_and_decrypt(evidence.file_path)
+    filename = file_service.safe_filename(evidence.file_path)
+
+    return RawResponse(
+        content=plaintext,
+        media_type="application/octet-stream",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+        },
+    )
 
 
 # ─── Timeline Endpoints ───────────────────────────────────────────────────────
