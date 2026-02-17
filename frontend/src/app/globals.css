@@ -1,8 +1,32 @@
 @import "tailwindcss";
 
+/* ── Wyoming state color palette ──────────────────────────────────── */
+/*  Navy blue  — WY flag background                                    */
+/*  Gold       — meadowlark, open plains                              */
+/*  Red        — WY flag border / Indian paintbrush                    */
+/*  Cream      — warm off-white page background                       */
+
 :root {
-  --background: #ffffff;
+  --background: #fdfbf7;
   --foreground: #171717;
+
+  --wy-navy: #002d62;
+  --wy-navy-light: #003d82;
+  --wy-navy-dark: #001f45;
+  --wy-navy-50: #e8eff8;
+  --wy-navy-100: #c5d6ec;
+
+  --wy-gold: #f0b323;
+  --wy-gold-light: #f5c95a;
+  --wy-gold-dark: #d49e0f;
+  --wy-gold-50: #fef8e7;
+  --wy-gold-100: #fceec5;
+
+  --wy-red: #ce1126;
+  --wy-red-50: #fdedef;
+
+  --wy-cream: #fdfbf7;
+  --wy-cream-dark: #f5f0e8;
 }
 
 @theme inline {
@@ -10,6 +34,24 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --color-wy-navy: var(--wy-navy);
+  --color-wy-navy-light: var(--wy-navy-light);
+  --color-wy-navy-dark: var(--wy-navy-dark);
+  --color-wy-navy-50: var(--wy-navy-50);
+  --color-wy-navy-100: var(--wy-navy-100);
+
+  --color-wy-gold: var(--wy-gold);
+  --color-wy-gold-light: var(--wy-gold-light);
+  --color-wy-gold-dark: var(--wy-gold-dark);
+  --color-wy-gold-50: var(--wy-gold-50);
+  --color-wy-gold-100: var(--wy-gold-100);
+
+  --color-wy-red: var(--wy-red);
+  --color-wy-red-50: var(--wy-red-50);
+
+  --color-wy-cream: var(--wy-cream);
+  --color-wy-cream-dark: var(--wy-cream-dark);
 }
 
 @media (prefers-color-scheme: dark) {

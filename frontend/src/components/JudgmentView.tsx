@@ -396,7 +396,7 @@ export function JudgmentView({
                 <div className="flex justify-end">
                   <button
                     type="button"
-                    className="rounded-lg bg-zinc-900 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+                    className="rounded-lg bg-wy-navy px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-wy-navy-light dark:bg-wy-gold dark:text-wy-navy dark:hover:bg-wy-gold-light"
                     onClick={downloadCourtPrep}
                   >
                     Download preparation packet
@@ -702,7 +702,7 @@ export function JudgmentView({
           {!showComparison ? (
             <button
               type="button"
-              className="w-full flex-shrink-0 rounded-lg bg-zinc-900 px-5 py-2 text-sm font-semibold text-white transition-all hover:bg-zinc-800 sm:w-auto dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+              className="w-full flex-shrink-0 rounded-lg bg-wy-navy px-5 py-2 text-sm font-semibold text-white transition-all hover:bg-wy-navy-light sm:w-auto dark:bg-wy-gold dark:text-wy-navy dark:hover:bg-wy-gold-light"
               onClick={() => {
                 setShowComparison(true);
                 if (comparisonResults.length === 0) onRunComparison();

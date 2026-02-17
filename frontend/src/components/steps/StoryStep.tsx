@@ -194,7 +194,7 @@ function TemplateCombobox({
               <span className="text-zinc-400 italic">No template — writing from scratch</span>
             ) : (
               <>
-                <span className="inline-flex items-center rounded-md bg-zinc-200 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300">
+                <span className="inline-flex items-center rounded-md bg-wy-navy-50 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-wy-navy dark:bg-zinc-700 dark:text-zinc-300">
                   {caseTypeLabels[selectedTemplate.caseType] ?? selectedTemplate.caseType}
                 </span>
                 <span className="truncate text-zinc-700 dark:text-zinc-200">
@@ -245,7 +245,7 @@ function TemplateCombobox({
                   ) : (
                     <div className="flex flex-col gap-0.5">
                       <div className="flex items-center gap-2">
-                        <span className="inline-flex items-center rounded-md bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-zinc-500 dark:bg-zinc-700 dark:text-zinc-400">
+                        <span className="inline-flex items-center rounded-md bg-wy-navy-50 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-wy-navy/70 dark:bg-zinc-700 dark:text-zinc-400">
                           {caseTypeLabels[t.caseType] ?? t.caseType}
                         </span>
                         <span className="truncate text-zinc-800 dark:text-zinc-100">
@@ -413,8 +413,8 @@ export function StoryStep({
                 onClick={() => onJudgeChange(judge.id)}
                 className={`w-full rounded-lg border p-3 text-left transition-all ${
                   judgeId === judge.id
-                    ? "border-zinc-900 bg-zinc-50 shadow-sm dark:border-zinc-300 dark:bg-zinc-800"
-                    : "border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:hover:border-zinc-600 dark:hover:bg-zinc-800/50"
+                    ? "border-wy-navy bg-wy-navy-50 shadow-sm ring-1 ring-wy-navy/10 dark:border-wy-gold dark:bg-zinc-800 dark:ring-wy-gold/20"
+                    : "border-zinc-200 hover:border-wy-navy/30 hover:bg-wy-navy-50/50 dark:border-zinc-700 dark:hover:border-zinc-600 dark:hover:bg-zinc-800/50"
                 }`}
               >
                 <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
@@ -443,7 +443,7 @@ export function StoryStep({
       <div className="flex justify-end">
         <button
           type="button"
-          className="w-full rounded-lg bg-zinc-900 px-8 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:py-2.5 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+          className="w-full rounded-lg bg-wy-navy px-8 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-wy-navy-light disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:py-2.5 dark:bg-wy-gold dark:text-wy-navy dark:hover:bg-wy-gold-light"
           onClick={onContinue}
           disabled={isSaving}
         >

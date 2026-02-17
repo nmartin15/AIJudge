@@ -18,9 +18,9 @@ export function ProgressBar({ steps, currentStep }: ProgressBarProps) {
 
       {/* Progress track */}
       <div className="relative sm:hidden">
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800">
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-wy-navy-50 dark:bg-zinc-800">
           <div
-            className="h-full rounded-full bg-zinc-900 transition-all duration-500 ease-out dark:bg-zinc-100"
+            className="h-full rounded-full bg-wy-navy transition-all duration-500 ease-out dark:bg-wy-gold"
             style={{
               width: `${((currentStep) / (steps.length - 1)) * 100}%`,
             }}
@@ -42,9 +42,9 @@ export function ProgressBar({ steps, currentStep }: ProgressBarProps) {
                 <div
                   className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition-all duration-300 ${
                     isCompleted
-                      ? "bg-emerald-500 text-white shadow-sm"
+                      ? "bg-wy-gold text-wy-navy shadow-sm"
                       : isActive
-                        ? "bg-zinc-900 text-white ring-4 ring-zinc-900/10 dark:bg-zinc-100 dark:text-zinc-900 dark:ring-zinc-100/10"
+                        ? "bg-wy-navy text-white ring-4 ring-wy-navy/10 dark:bg-wy-gold dark:text-wy-navy dark:ring-wy-gold/20"
                         : "bg-zinc-200 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-600"
                   }`}
                 >
@@ -69,9 +69,9 @@ export function ProgressBar({ steps, currentStep }: ProgressBarProps) {
                 <span
                   className={`mt-2 block text-xs font-medium ${
                     isActive
-                      ? "text-zinc-900 dark:text-zinc-100"
+                      ? "text-wy-navy font-semibold dark:text-wy-gold"
                       : isCompleted
-                        ? "text-emerald-600 dark:text-emerald-400"
+                        ? "text-wy-gold-dark dark:text-wy-gold"
                         : "text-zinc-400 dark:text-zinc-600"
                   }`}
                 >
@@ -82,7 +82,7 @@ export function ProgressBar({ steps, currentStep }: ProgressBarProps) {
                 <div
                   className={`mx-3 h-0.5 flex-1 rounded-full transition-colors duration-300 ${
                     isCompleted
-                      ? "bg-emerald-500"
+                      ? "bg-wy-gold"
                       : "bg-zinc-200 dark:bg-zinc-800"
                   }`}
                 />

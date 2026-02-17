@@ -255,7 +255,7 @@ export function TriageScreener({ onComplete, onSkip }: TriageScreenerProps) {
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
           <button
             type="button"
-            className="rounded-lg bg-zinc-900 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+            className="rounded-lg bg-wy-navy px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-wy-navy-light dark:bg-wy-gold dark:text-wy-navy dark:hover:bg-wy-gold-light"
             onClick={() => onComplete(result)}
           >
             {result.suitable

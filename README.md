@@ -7,16 +7,19 @@ AI-powered small claims court simulation for Wyoming jurisdiction. An educationa
 ## Features
 
 - Multi-step case intake with both plaintiff and defendant perspectives
+- **20 example case templates** spanning 10 dispute categories (security deposit, landlord-tenant, property damage, contract, consumer, loan/debt, wages/services, neighbor, pet/animal) with searchable combobox and keyword filtering
 - Four distinct judge archetypes with different judicial temperaments
 - Interactive hearing simulation with AI judge questions
 - Formal judgment documents with findings of fact, conclusions of law, and citations
 - Evidence scoring and reasoning transparency
 - Multi-judge comparison to see how different temperaments affect outcomes
+- **Wyoming state-branded UI** — navy blue, gold, and warm cream color palette derived from the Wyoming state flag and symbols
+- Phone number auto-formatting as (XXX) XXX-XXXX
 
 ## Tech Stack
 
 - **Backend:** Python 3.12 + FastAPI
-- **Frontend:** Next.js + TypeScript + Tailwind CSS + shadcn/ui
+- **Frontend:** Next.js 16 + React 19 + TypeScript + Tailwind CSS 4
 - **Database:** PostgreSQL + pgvector
 - **AI:** Claude (reasoning) + GPT-4o (extraction) + OpenAI embeddings
 
@@ -125,7 +128,10 @@ backend/           Python/FastAPI backend
   prompts/         System prompts and templates
   db/              Database connection and encrypted column types
   crypto.py        Fernet encryption helpers for PII and file at-rest encryption
-frontend/          Next.js frontend application
+frontend/          Next.js frontend application (Wyoming-branded UI)
+  src/app/         Root layout, global styles, and page component
+  src/components/  Step components, hearing room, judgment view
+  src/lib/         API client, mock simulation, case templates, hooks
 nginx/             Nginx reverse-proxy configuration and security headers
 docs/              API contract and developer documentation
 docker-compose.yml Docker orchestration (Postgres + Backend + Frontend)

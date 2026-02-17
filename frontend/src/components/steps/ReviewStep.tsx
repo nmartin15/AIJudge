@@ -124,7 +124,7 @@ export function ReviewStep({
           Presiding judge
         </h3>
         <div className="flex items-start gap-3 sm:gap-4">
-          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-zinc-900 text-base font-bold text-white sm:h-12 sm:w-12 sm:text-lg dark:bg-zinc-100 dark:text-zinc-900">
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-wy-navy text-base font-bold text-white sm:h-12 sm:w-12 sm:text-lg dark:bg-wy-gold dark:text-wy-navy">
             {selectedJudge.name.split(" ").pop()?.[0] ?? "J"}
           </div>
           <div className="min-w-0">
@@ -197,7 +197,7 @@ export function ReviewStep({
           {!hearingConcluded && (
             <button
               type="button"
-              className="rounded-lg bg-zinc-900 px-8 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-zinc-800 sm:py-2.5 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+              className="rounded-lg bg-wy-navy px-8 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-wy-navy-light sm:py-2.5 dark:bg-wy-gold dark:text-wy-navy dark:hover:bg-wy-gold-light"
               onClick={onBeginHearing}
             >
               Begin hearing

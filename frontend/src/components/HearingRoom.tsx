@@ -97,7 +97,7 @@ export function HearingRoom({
     <div className="animate-fade-in flex min-h-[calc(100vh-10rem)] flex-col sm:min-h-[calc(100vh-12rem)]">
       {/* Judge header */}
       <div className="mb-4 text-center sm:mb-6">
-        <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-zinc-900 text-xl font-bold text-white sm:mb-3 sm:h-16 sm:w-16 sm:text-2xl dark:bg-zinc-100 dark:text-zinc-900">
+        <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-wy-navy text-xl font-bold text-white sm:mb-3 sm:h-16 sm:w-16 sm:text-2xl dark:bg-wy-gold dark:text-wy-navy">
           {judge.name.split(" ").pop()?.[0] ?? "J"}
         </div>
         <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">
@@ -140,7 +140,7 @@ export function HearingRoom({
           </div>
           <button
             type="button"
-            className="rounded-lg bg-zinc-900 px-10 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+            className="rounded-lg bg-wy-navy px-10 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-wy-navy-light disabled:cursor-not-allowed disabled:opacity-60 dark:bg-wy-gold dark:text-wy-navy dark:hover:bg-wy-gold-light"
             onClick={onBegin}
             disabled={isStarting}
           >
@@ -281,7 +281,7 @@ export function HearingRoom({
                   />
                   <button
                     type="button"
-                    className="flex-shrink-0 self-end rounded-lg bg-zinc-900 px-5 py-3 text-sm font-semibold text-white transition-all hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60 sm:py-2.5 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+                    className="flex-shrink-0 self-end rounded-lg bg-wy-navy px-5 py-3 text-sm font-semibold text-white transition-all hover:bg-wy-navy-light disabled:cursor-not-allowed disabled:opacity-60 sm:py-2.5 dark:bg-wy-gold dark:text-wy-navy dark:hover:bg-wy-gold-light"
                     onClick={onSend}
                     disabled={!input.trim() || isSending || concluded}
                   >

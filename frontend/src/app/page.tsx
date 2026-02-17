@@ -976,9 +976,10 @@ export default function Home() {
       <main className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-10">
         {/* Warm welcome header */}
         <header className="mb-8 text-center sm:mb-10">
-          <h1 className="text-2xl font-bold tracking-tight sm:text-4xl">
+          <h1 className="text-2xl font-bold tracking-tight text-wy-navy sm:text-4xl dark:text-white">
             Let&apos;s figure out your case
           </h1>
+          <div className="mx-auto mt-3 h-1 w-16 rounded-full bg-wy-gold sm:mt-4 sm:w-20" />
           <p className="mx-auto mt-2 max-w-2xl text-sm leading-relaxed text-zinc-500 sm:mt-3 dark:text-zinc-400">
             Walk through each step below. Take your time &mdash; the more detail
             you provide, the better the judge can understand your situation.
@@ -990,18 +991,18 @@ export default function Home() {
 
         {/* Recovery banner */}
         {showRecoveryBanner && (
-          <div className="mt-4 flex flex-col items-start gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between dark:border-blue-800 dark:bg-blue-950/30">
+          <div className="mt-4 flex flex-col items-start gap-2 rounded-lg border border-wy-navy/20 bg-wy-navy-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between dark:border-wy-gold/30 dark:bg-wy-gold/5">
             <div className="flex items-center gap-2">
-              <svg className="h-4 w-4 flex-shrink-0 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="h-4 w-4 flex-shrink-0 text-wy-navy dark:text-wy-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              <p className="text-sm text-blue-800 dark:text-blue-300">
+              <p className="text-sm text-wy-navy dark:text-wy-gold-light">
                 Your previous progress has been restored.
               </p>
             </div>
             <button
               type="button"
-              className="text-xs font-semibold text-blue-600 underline-offset-2 hover:underline dark:text-blue-400"
+              className="text-xs font-semibold text-wy-navy underline-offset-2 hover:underline dark:text-wy-gold"
               onClick={() => setShowRecoveryBanner(false)}
             >
               Dismiss

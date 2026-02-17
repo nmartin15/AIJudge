@@ -1,22 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+This is the Next.js frontend for **Wyoming AI Judge** — an AI-powered small claims court simulation.
+
+## UI Design
+
+The interface uses a **Wyoming state color palette** throughout:
+
+| Color | Hex | Usage |
+|-------|-----|-------|
+| Navy Blue | `#002D62` | Header, primary buttons, active states, headings |
+| Gold | `#F0B323` | Completed step indicators, logo badge, accent highlights, dark-mode primary buttons |
+| Cream | `#FDFBF7` | Page background (warm off-white) |
+| Red | `#CE1126` | Error states (from WY flag border) |
+
+Custom colors are defined as CSS variables and Tailwind theme tokens in `src/app/globals.css` and are available as utility classes (e.g., `bg-wy-navy`, `text-wy-gold`, `border-wy-navy-50`).
+
+## Case Templates
+
+The app ships with **20 example case templates** across 10 dispute categories commonly seen in Wyoming small claims court:
+
+- Security Deposit, Landlord-Tenant, Property Damage, Contract, Consumer
+- Loan/Debt, Wages/Services, Neighbor, Pet/Animal, plus "Start from scratch"
+
+Templates are searchable by keyword via a combobox (title, case type, tags, and narrative text are all indexed).
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 ## Simulation Mode Flag
 
