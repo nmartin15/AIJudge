@@ -4,18 +4,20 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { StoryStep } from "./StoryStep";
 import { mockCaseTemplates } from "@/lib/mockSimulation";
 
+const firstRealTemplate = mockCaseTemplates.find((t) => t.id !== "blank") ?? mockCaseTemplates[0];
+
 function defaultProps(
   overrides: Partial<Parameters<typeof StoryStep>[0]> = {}
 ) {
   return {
     templates: mockCaseTemplates,
-    selectedTemplateId: mockCaseTemplates[0].id,
+    selectedTemplateId: firstRealTemplate.id,
     onLoadTemplate: vi.fn(),
-    plaintiffNarrative: mockCaseTemplates[0].plaintiffNarrative,
+    plaintiffNarrative: firstRealTemplate.plaintiffNarrative,
     onPlaintiffNarrativeChange: vi.fn(),
-    defendantNarrative: mockCaseTemplates[0].defendantNarrative,
+    defendantNarrative: firstRealTemplate.defendantNarrative,
     onDefendantNarrativeChange: vi.fn(),
-    amountClaimed: mockCaseTemplates[0].amountClaimed,
+    amountClaimed: firstRealTemplate.amountClaimed,
     onAmountChange: vi.fn(),
     judgeId: "common_sense" as const,
     onJudgeChange: vi.fn(),
@@ -38,20 +40,30 @@ describe("StoryStep", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders template selector with all templates", () => {
+  it("renders the searchable template combobox", () => {
     render(<StoryStep {...defaultProps()} />);
-    for (const template of mockCaseTemplates) {
-      expect(screen.getByText(template.title)).toBeInTheDocument();
-    }
+    expect(screen.getByRole("combobox")).toBeInTheDocument();
+    expect(screen.getByText(firstRealTemplate.title)).toBeInTheDocument();
   });
 
-  it("calls onLoadTemplate when a template is selected", () => {
+  it("shows template list when combobox is focused", () => {
+    render(<StoryStep {...defaultProps()} />);
+    const combobox = screen.getByRole("combobox");
+    fireEvent.focus(combobox);
+    expect(screen.getByRole("listbox")).toBeInTheDocument();
+    expect(screen.getByText("Start from scratch")).toBeInTheDocument();
+  });
+
+  it("calls onLoadTemplate when a template option is clicked", () => {
     const onLoadTemplate = vi.fn();
     render(<StoryStep {...defaultProps({ onLoadTemplate })} />);
 
-    const select = screen.getByRole("combobox");
-    fireEvent.change(select, { target: { value: mockCaseTemplates[1].id } });
-    expect(onLoadTemplate).toHaveBeenCalledWith(mockCaseTemplates[1].id);
+    const combobox = screen.getByRole("combobox");
+    fireEvent.focus(combobox);
+
+    const secondRealTemplate = mockCaseTemplates.find((t) => t.id !== "blank" && t.id !== firstRealTemplate.id)!;
+    fireEvent.click(screen.getByText(secondRealTemplate.title));
+    expect(onLoadTemplate).toHaveBeenCalledWith(secondRealTemplate.id);
   });
 
   it("shows plaintiff and defendant narrative fields", () => {

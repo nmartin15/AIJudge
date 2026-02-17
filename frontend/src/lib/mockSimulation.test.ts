@@ -5,7 +5,7 @@ import { runMockSimulation } from "@/lib/mockSimulation";
 describe("runMockSimulation", () => {
   it("returns plaintiff win when plaintiff evidence dominates", () => {
     const result = runMockSimulation({
-      templateId: "wy-auto-002",
+      templateId: "wy-auto-001",
       plaintiffNarrative: "Plaintiff states the parked car was hit.",
       defendantNarrative: "Defendant disputes the extent of damages.",
       amountClaimed: 1000,
@@ -22,7 +22,7 @@ describe("runMockSimulation", () => {
 
   it("returns zero award on defendant win", () => {
     const result = runMockSimulation({
-      templateId: "wy-handyman-003",
+      templateId: "wy-contract-001",
       plaintiffNarrative: "Plaintiff says work was not completed.",
       defendantNarrative: "Defendant says scope changed without approval.",
       amountClaimed: 2400,

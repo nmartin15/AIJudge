@@ -1,4 +1,100 @@
+import { memo, useCallback, useRef, useEffect } from "react";
 import type { Party, PartyRole } from "@/lib/types";
+
+// ── Phone formatting ────────────────────────────────────────────────────────
+
+function stripNonDigits(value: string): string {
+  return value.replace(/\D/g, "");
+}
+
+function formatPhone(value: string): string {
+  const digits = stripNonDigits(value).slice(0, 10);
+  if (digits.length === 0) return "";
+  if (digits.length <= 3) return `(${digits}`;
+  if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+}
+
+// ── Stable text input that owns its own cursor position ─────────────────────
+
+function StableInput({
+  value,
+  onChange,
+  placeholder,
+  type = "text",
+  formatFn,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  type?: "text" | "tel";
+  formatFn?: (raw: string) => string;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
+
+  // Sync parent value into the input only when the input is NOT focused,
+  // so we never fight the user's cursor position mid-typing.
+  useEffect(() => {
+    const el = inputRef.current;
+    if (!el || el === document.activeElement) return;
+    const display = formatFn ? formatFn(value) : value;
+    if (el.value !== display) {
+      el.value = display;
+    }
+  }, [value, formatFn]);
+
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const raw = e.target.value;
+      if (formatFn) {
+        const formatted = formatFn(raw);
+        // Preserve cursor position relative to the formatted value
+        const el = e.target;
+        const prevCursor = el.selectionStart ?? formatted.length;
+        const prevLen = raw.length;
+        el.value = formatted;
+        // Adjust cursor: if formatting added characters, shift cursor right
+        const delta = formatted.length - prevLen;
+        const newCursor = Math.max(0, prevCursor + delta);
+        el.setSelectionRange(newCursor, newCursor);
+        onChangeRef.current(stripNonDigits(raw));
+      } else {
+        onChangeRef.current(raw);
+      }
+    },
+    [formatFn],
+  );
+
+  const handleBlur = useCallback(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    if (formatFn) {
+      const formatted = formatFn(el.value);
+      el.value = formatted;
+      onChangeRef.current(stripNonDigits(el.value));
+    } else {
+      onChangeRef.current(el.value);
+    }
+  }, [formatFn]);
+
+  const display = formatFn ? formatFn(value) : value;
+
+  return (
+    <input
+      ref={inputRef}
+      type={type}
+      className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm transition-colors focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 dark:border-zinc-700 dark:bg-zinc-800"
+      placeholder={placeholder}
+      defaultValue={display}
+      onChange={handleChange}
+      onBlur={handleBlur}
+    />
+  );
+}
+
+// ── Party card ──────────────────────────────────────────────────────────────
 
 interface PartiesStepProps {
   plaintiff: { name: string; address: string; phone: string };
@@ -17,7 +113,7 @@ interface PartiesStepProps {
   isBackendMode: boolean;
 }
 
-function PartyCard({
+const PartyCard = memo(function PartyCard({
   role,
   label,
   data,
@@ -56,33 +152,32 @@ function PartyCard({
           <label className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
             Full name *
           </label>
-          <input
-            className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm transition-colors focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 dark:border-zinc-700 dark:bg-zinc-800"
+          <StableInput
             placeholder={role === "plaintiff" ? "Your full legal name" : "Their full legal name"}
             value={data.name}
-            onChange={(e) => onFieldChange("name", e.target.value)}
+            onChange={(v) => onFieldChange("name", v)}
           />
         </div>
         <div>
           <label className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
             Address
           </label>
-          <input
-            className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm transition-colors focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 dark:border-zinc-700 dark:bg-zinc-800"
+          <StableInput
             placeholder="Street address, city, state"
             value={data.address}
-            onChange={(e) => onFieldChange("address", e.target.value)}
+            onChange={(v) => onFieldChange("address", v)}
           />
         </div>
         <div>
           <label className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
             Phone
           </label>
-          <input
-            className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm transition-colors focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 dark:border-zinc-700 dark:bg-zinc-800"
+          <StableInput
+            type="tel"
             placeholder="(307) 555-0100"
             value={data.phone}
-            onChange={(e) => onFieldChange("phone", e.target.value)}
+            onChange={(v) => onFieldChange("phone", v)}
+            formatFn={formatPhone}
           />
         </div>
       </div>
@@ -98,9 +193,11 @@ function PartyCard({
       )}
     </div>
   );
-}
+});
 
-export function PartiesStep({
+// ── Main step ───────────────────────────────────────────────────────────────
+
+export const PartiesStep = memo(function PartiesStep({
   plaintiff,
   defendant,
   onFieldChange,
@@ -114,6 +211,28 @@ export function PartiesStep({
 }: PartiesStepProps) {
   const hasPlaintiff = savedParties.some((p) => p.role === "plaintiff");
   const hasDefendant = savedParties.some((p) => p.role === "defendant");
+
+  const handlePlaintiffField = useCallback(
+    (field: "name" | "address" | "phone", value: string) =>
+      onFieldChange("plaintiff", field, value),
+    [onFieldChange],
+  );
+
+  const handleDefendantField = useCallback(
+    (field: "name" | "address" | "phone", value: string) =>
+      onFieldChange("defendant", field, value),
+    [onFieldChange],
+  );
+
+  const savePlaintiff = useCallback(
+    () => onSaveParty("plaintiff"),
+    [onSaveParty],
+  );
+
+  const saveDefendant = useCallback(
+    () => onSaveParty("defendant"),
+    [onSaveParty],
+  );
 
   return (
     <div className="animate-fade-in space-y-8">
@@ -135,8 +254,8 @@ export function PartiesStep({
           label="Plaintiff (you)"
           data={plaintiff}
           isSaved={hasPlaintiff}
-          onFieldChange={(field, value) => onFieldChange("plaintiff", field, value)}
-          onSave={() => onSaveParty("plaintiff")}
+          onFieldChange={handlePlaintiffField}
+          onSave={savePlaintiff}
           isSaving={isSaving}
           isBackendMode={isBackendMode}
         />
@@ -145,8 +264,8 @@ export function PartiesStep({
           label="Defendant (other party)"
           data={defendant}
           isSaved={hasDefendant}
-          onFieldChange={(field, value) => onFieldChange("defendant", field, value)}
-          onSave={() => onSaveParty("defendant")}
+          onFieldChange={handleDefendantField}
+          onSave={saveDefendant}
           isSaving={isSaving}
           isBackendMode={isBackendMode}
         />
@@ -178,4 +297,4 @@ export function PartiesStep({
       </div>
     </div>
   );
-}
+});

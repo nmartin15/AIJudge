@@ -10,6 +10,7 @@ import { useToasts } from "@/lib/useToasts";
 import { useHearing } from "@/lib/useHearing";
 import {
   mockCaseTemplates,
+  BLANK_TEMPLATE,
   type SimulationOutput,
   type JudgeTemperament,
 } from "@/lib/mockSimulation";
@@ -107,12 +108,13 @@ export default function Home() {
   const { toasts, addToast, removeToast } = useToasts();
 
   // ── Case basics ────────────────────────────────────────────────────
+  const defaultTemplate = mockCaseTemplates.find((t) => t.id !== "blank") ?? mockCaseTemplates[0];
   const [selectedTemplateId, setSelectedTemplateId] = useState(
-    mockCaseTemplates[0].id
+    defaultTemplate.id
   );
   const selectedTemplate =
     mockCaseTemplates.find((item) => item.id === selectedTemplateId) ??
-    mockCaseTemplates[0];
+    defaultTemplate;
 
   const [plaintiffNarrative, setPlaintiffNarrative] = useState(
     selectedTemplate.plaintiffNarrative
@@ -849,6 +851,44 @@ export default function Home() {
     setActiveStep(nextStep);
   }
 
+  // ── Memoized party props (prevent cursor-position issues) ─────────
+  const plaintiffParty = useMemo(
+    () => ({ name: plaintiffName, address: plaintiffAddress, phone: plaintiffPhone }),
+    [plaintiffName, plaintiffAddress, plaintiffPhone],
+  );
+  const defendantParty = useMemo(
+    () => ({ name: defendantName, address: defendantAddress, phone: defendantPhone }),
+    [defendantName, defendantAddress, defendantPhone],
+  );
+  const handlePartyFieldChange = useCallback(
+    (party: "plaintiff" | "defendant", field: "name" | "address" | "phone", value: string) => {
+      if (party === "plaintiff") {
+        if (field === "name") setPlaintiffName(value);
+        else if (field === "address") setPlaintiffAddress(value);
+        else setPlaintiffPhone(value);
+      } else {
+        if (field === "name") setDefendantName(value);
+        else if (field === "address") setDefendantAddress(value);
+        else setDefendantPhone(value);
+      }
+    },
+    [],
+  );
+  const handleSaveParty = useCallback(
+    (role: PartyRole) => void saveParty(role),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [saveParty],
+  );
+  const handlePartiesBack = useCallback(() => {
+    setStepError(null);
+    setActiveStep(0);
+  }, []);
+  const handlePartiesContinue = useCallback(
+    () => goToStepWithValidation(2, validatePartiesStep),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [goToStepWithValidation, validatePartiesStep],
+  );
+
   // ══════════════════════════════════════════════════════════════════
   //  RENDER
   // ══════════════════════════════════════════════════════════════════
@@ -881,7 +921,7 @@ export default function Home() {
             isRunningComparison={isRunningComparison}
             comparisonError={comparisonError}
             onRunComparison={() => void runMultiJudgeComparison()}
-            onStartOver={() => loadTemplate(mockCaseTemplates[0].id)}
+            onStartOver={() => loadTemplate(defaultTemplate.id)}
             isRunning={isRunning}
           />
           </SectionErrorBoundary>
@@ -992,38 +1032,15 @@ export default function Home() {
 
           {activeStep === 1 && (
             <PartiesStep
-              plaintiff={{
-                name: plaintiffName,
-                address: plaintiffAddress,
-                phone: plaintiffPhone,
-              }}
-              defendant={{
-                name: defendantName,
-                address: defendantAddress,
-                phone: defendantPhone,
-              }}
-              onFieldChange={(party, field, value) => {
-                if (party === "plaintiff") {
-                  if (field === "name") setPlaintiffName(value);
-                  else if (field === "address") setPlaintiffAddress(value);
-                  else setPlaintiffPhone(value);
-                } else {
-                  if (field === "name") setDefendantName(value);
-                  else if (field === "address") setDefendantAddress(value);
-                  else setDefendantPhone(value);
-                }
-              }}
+              plaintiff={plaintiffParty}
+              defendant={defendantParty}
+              onFieldChange={handlePartyFieldChange}
               savedParties={caseRecord?.parties ?? []}
-              onSaveParty={(role) => void saveParty(role)}
+              onSaveParty={handleSaveParty}
               isSaving={isSavingStep}
               error={stepError}
-              onBack={() => {
-                setStepError(null);
-                setActiveStep(0);
-              }}
-              onContinue={() =>
-                goToStepWithValidation(2, validatePartiesStep)
-              }
+              onBack={handlePartiesBack}
+              onContinue={handlePartiesContinue}
               isBackendMode={SIMULATION_MODE === "backend"}
             />
           )}
