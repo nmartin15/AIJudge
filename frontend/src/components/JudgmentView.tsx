@@ -813,7 +813,7 @@ export function JudgmentView({
                 {/* Desktop: table + detail cards */}
                 <div className="hidden sm:block">
                   <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm">
+                    <table aria-label="Judge comparison results" className="w-full text-left text-sm">
                       <thead>
                         <tr className="border-b border-zinc-200 dark:border-zinc-700">
                           <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">
@@ -939,6 +939,7 @@ function CaseStrengthSection({
         className="flex w-full items-center justify-between px-4 py-3 text-left sm:px-6 sm:py-4"
         onClick={onToggle}
         aria-expanded={expanded}
+        aria-controls="case-strength-details"
       >
         <div className="flex items-center gap-3">
           <div className="flex flex-col items-center">
@@ -963,6 +964,7 @@ function CaseStrengthSection({
           </div>
         </div>
         <svg
+          aria-hidden="true"
           className={`h-4 w-4 flex-shrink-0 text-zinc-400 transition-transform ${
             expanded ? "rotate-180" : ""
           }`}
@@ -979,7 +981,7 @@ function CaseStrengthSection({
         </svg>
       </button>
       {expanded && (
-        <div className="border-t border-zinc-100 px-4 pb-4 sm:px-6 sm:pb-5 dark:border-zinc-800">
+        <div id="case-strength-details" className="border-t border-zinc-100 px-4 pb-4 sm:px-6 sm:pb-5 dark:border-zinc-800">
           {/* Strength bar */}
           <div className="mt-4">
             <div className="flex items-center justify-between text-xs text-zinc-400">
@@ -1140,6 +1142,7 @@ function CollapsibleSection({
           {title}
         </span>
         <svg
+          aria-hidden="true"
           className={`h-4 w-4 flex-shrink-0 text-zinc-400 transition-transform ${
             expanded ? "rotate-180" : ""
           }`}

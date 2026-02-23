@@ -35,45 +35,45 @@ class Base(DeclarativeBase):
 
 
 class PartyRole(str, enum.Enum):
-    PLAINTIFF = "plaintiff"
-    DEFENDANT = "defendant"
+    plaintiff = "plaintiff"
+    defendant = "defendant"
 
 
 class CaseStatus(str, enum.Enum):
-    INTAKE = "intake"
-    READY = "ready"
-    HEARING = "hearing"
-    DECIDED = "decided"
+    intake = "intake"
+    ready = "ready"
+    hearing = "hearing"
+    decided = "decided"
 
 
 class CaseType(str, enum.Enum):
-    CONTRACT = "contract"
-    PROPERTY_DAMAGE = "property_damage"
-    SECURITY_DEPOSIT = "security_deposit"
-    LOAN_DEBT = "loan_debt"
-    CONSUMER = "consumer"
-    OTHER = "other"
+    contract = "contract"
+    property_damage = "property_damage"
+    security_deposit = "security_deposit"
+    loan_debt = "loan_debt"
+    consumer = "consumer"
+    other = "other"
 
 
 class EvidenceType(str, enum.Enum):
-    DOCUMENT = "document"
-    PHOTO = "photo"
-    RECEIPT = "receipt"
-    TEXT_MESSAGE = "text_message"
-    EMAIL = "email"
-    CONTRACT = "contract"
-    OTHER = "other"
+    document = "document"
+    photo = "photo"
+    receipt = "receipt"
+    text_message = "text_message"
+    email = "email"
+    contract = "contract"
+    other = "other"
 
 
 class OperatorRole(str, enum.Enum):
-    VIEWER = "viewer"
-    ADMIN = "admin"
+    viewer = "viewer"
+    admin = "admin"
 
 
 class HearingMessageRole(str, enum.Enum):
-    JUDGE = "judge"
-    PLAINTIFF = "plaintiff"
-    DEFENDANT = "defendant"
+    judge = "judge"
+    plaintiff = "plaintiff"
+    defendant = "defendant"
 
 
 # ─── Models ───────────────────────────────────────────────────────────────────
@@ -91,8 +91,8 @@ class Session(Base):
     role = Column(
         Enum(OperatorRole),
         nullable=False,
-        default=OperatorRole.VIEWER,
-        server_default=OperatorRole.VIEWER.value,
+        default=OperatorRole.viewer,
+        server_default=OperatorRole.viewer.value,
     )
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     last_active = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
@@ -113,7 +113,7 @@ class Case(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     session_id = Column(UUID(as_uuid=True), ForeignKey("sessions.id", ondelete="CASCADE"), nullable=False)
-    status = Column(Enum(CaseStatus), default=CaseStatus.INTAKE, server_default=CaseStatus.INTAKE.value, nullable=False)
+    status = Column(Enum(CaseStatus), default=CaseStatus.intake, server_default=CaseStatus.intake.value, nullable=False)
     case_type = Column(Enum(CaseType), nullable=True)
     case_type_confidence = Column(Float, nullable=True)
     plaintiff_narrative = Column(Text, nullable=True)

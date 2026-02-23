@@ -6,6 +6,6 @@ def test_get_case_requires_session_header(client):
 
     assert response.status_code == 401
     payload = response.json()
-    assert payload["error"]["code"] == "unauthorized"
-    assert payload["error"]["message"] == "X-Session-Id header is required"
+    assert payload["error"]["code"] == "session_required"
+    assert payload["error"]["message"] == "Session identifier is required"
     assert payload["error"]["retryable"] is False

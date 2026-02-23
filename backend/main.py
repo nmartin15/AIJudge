@@ -159,12 +159,14 @@ from api.cases import router as cases_router
 from api.auth import router as auth_router
 from api.hearing import router as hearing_router
 from api.judgment import router as judgment_router
+from api.comparison import router as comparison_router
 from api.corpus import router as corpus_router
 
 app.include_router(cases_router, tags=["Cases"])
 app.include_router(auth_router, tags=["Auth"])
 app.include_router(hearing_router, tags=["Hearings"])
 app.include_router(judgment_router, tags=["Judgments"])
+app.include_router(comparison_router, tags=["Comparisons"])
 app.include_router(corpus_router, tags=["Corpus & Archetypes"])
 app.add_exception_handler(StarletteHTTPException, http_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)

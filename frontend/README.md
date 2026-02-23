@@ -67,11 +67,32 @@ When running in backend mode, sessions are managed via **httpOnly cookies** set 
 
 ## Tests
 
-Run unit/component tests with:
+Run the full test suite (189 tests across 20 files):
 
 ```bash
-npm test
+npm test                        # single run
+npx vitest --reporter=verbose   # watch mode with full output
 ```
+
+### Test coverage by area
+
+| Category | Test files | Tests |
+|----------|-----------|-------|
+| Step components (PartiesStep, EvidenceStep, TimelineStep, StoryStep, ReviewStep) | 5 | ~50 |
+| Core components (HearingRoom, JudgmentView, ErrorBoundary, SectionErrorBoundary) | 4 | ~40 |
+| UI components (ProgressBar, ToastContainer) | 2 | ~15 |
+| Custom hooks (useHearing, useToasts, useFormPersistence, useUnsavedChangesWarning) | 4 | ~20 |
+| API client & simulation | 3 | ~35 |
+| Integration (full wizard flow + multi-judge comparison) | 1 | ~3 |
+| Error paths (API failure at each wizard step) | 1 | ~6 |
+
+### Writing new tests
+
+- Tests live alongside source files: `ComponentName.test.tsx` or `hookName.test.ts`
+- Use `@testing-library/react` for component tests — query by role, label, or placeholder text
+- Mock the API layer via `vi.hoisted()` + `vi.mock("@/lib/api", ...)` to avoid real network calls
+- For async state updates after clicks/saves, wrap assertions in `waitFor()` to avoid race conditions
+- Integration tests use a `navigateToStep()` helper to advance the wizard through prerequisite steps
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 

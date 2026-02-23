@@ -48,11 +48,12 @@ export class ErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex min-h-[80vh] items-center justify-center px-4">
+        <div role="alert" className="flex min-h-[80vh] items-center justify-center px-4">
           <div className="mx-auto max-w-md text-center">
             {/* Icon */}
             <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-rose-100 dark:bg-rose-950/40">
               <svg
+                aria-hidden="true"
                 className="h-8 w-8 text-rose-600 dark:text-rose-400"
                 fill="none"
                 viewBox="0 0 24 24"

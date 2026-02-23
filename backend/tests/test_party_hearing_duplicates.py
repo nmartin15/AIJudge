@@ -47,8 +47,8 @@ def _make_case(case_id: uuid.UUID, session_id: str) -> MagicMock:
     c = MagicMock(spec=Case)
     c.id = case_id
     c.session_id = uuid.UUID(session_id)
-    c.status = CaseStatus.INTAKE
-    c.case_type = CaseType.CONTRACT
+    c.status = CaseStatus.intake
+    c.case_type = CaseType.contract
     c.plaintiff_narrative = "Test"
     c.defendant_narrative = "Test"
     c.claimed_amount = 500
@@ -109,7 +109,7 @@ class TestPartyDuplicate:
         mock_case = _make_case(case_id, session_id)
         existing_plaintiff = MagicMock(spec=Party)
         existing_plaintiff.id = uuid.uuid4()
-        existing_plaintiff.role = PartyRole.PLAINTIFF
+        existing_plaintiff.role = PartyRole.plaintiff
         existing_plaintiff.name = "Alice"
 
         async def override_get_db():
@@ -135,7 +135,7 @@ class TestPartyDuplicate:
         mock_case = _make_case(case_id, session_id)
         existing_defendant = MagicMock(spec=Party)
         existing_defendant.id = uuid.uuid4()
-        existing_defendant.role = PartyRole.DEFENDANT
+        existing_defendant.role = PartyRole.defendant
         existing_defendant.name = "Bob"
 
         async def override_get_db():

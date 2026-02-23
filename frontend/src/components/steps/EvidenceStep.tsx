@@ -72,10 +72,11 @@ export function EvidenceStep({
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            <label htmlFor="evidence-role" className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
               Submitted by
             </label>
             <select
+              id="evidence-role"
               className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm transition-colors focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 dark:border-zinc-700 dark:bg-zinc-800"
               value={role}
               onChange={(e) => setRole(e.target.value as PartyRole)}
@@ -85,10 +86,11 @@ export function EvidenceStep({
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            <label htmlFor="evidence-type" className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
               Type of evidence
             </label>
             <select
+              id="evidence-type"
               className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm transition-colors focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 dark:border-zinc-700 dark:bg-zinc-800"
               value={evidenceType}
               onChange={(e) => setEvidenceType(e.target.value as EvidenceType)}
@@ -101,32 +103,37 @@ export function EvidenceStep({
             </select>
           </div>
           <div className="sm:col-span-2">
-            <label className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            <label htmlFor="evidence-title" className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
               Title *
             </label>
             <input
+              id="evidence-title"
               className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm transition-colors focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 dark:border-zinc-700 dark:bg-zinc-800"
               placeholder='e.g., "Signed lease agreement" or "Photo of damage"'
+              maxLength={255}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
           </div>
           <div className="sm:col-span-2">
-            <label className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            <label htmlFor="evidence-description" className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
               Description
             </label>
             <textarea
+              id="evidence-description"
               className="h-20 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm leading-relaxed transition-colors focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 dark:border-zinc-700 dark:bg-zinc-800"
               placeholder="Briefly describe what this evidence shows..."
+              maxLength={5_000}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
           </div>
           <div className="sm:col-span-2">
-            <label className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            <label htmlFor="evidence-file" className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
               Attach file (optional)
             </label>
             <input
+              id="evidence-file"
               className="w-full text-sm text-zinc-500 file:mr-3 file:rounded-lg file:border-0 file:bg-zinc-100 file:px-3 file:py-2 file:text-sm file:font-medium file:text-zinc-700 hover:file:bg-zinc-200 dark:text-zinc-400 dark:file:bg-zinc-800 dark:file:text-zinc-300"
               type="file"
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
@@ -188,7 +195,7 @@ export function EvidenceStep({
 
       {/* Error */}
       {error && (
-        <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-800 dark:bg-rose-950/30 dark:text-rose-300">
+        <div role="alert" className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-800 dark:bg-rose-950/30 dark:text-rose-300">
           {error}
         </div>
       )}

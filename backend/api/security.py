@@ -174,7 +174,7 @@ def apply_admin_claim(session: Session, admin_key: str | None) -> bool:
     """Apply admin role to a session if the key is valid."""
     if not is_admin_key_valid(admin_key):
         return False
-    session.role = OperatorRole.ADMIN
+    session.role = OperatorRole.admin
     return True
 
 
@@ -201,7 +201,7 @@ async def require_admin_session(
 ) -> Session:
     """Require an authenticated session with admin role."""
     session = await get_session_by_header(db, session_id)
-    if session.role != OperatorRole.ADMIN:
+    if session.role != OperatorRole.admin:
         raise api_error(
             status_code=403,
             code="admin_required",

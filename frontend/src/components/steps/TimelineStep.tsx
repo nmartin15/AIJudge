@@ -58,10 +58,11 @@ export function TimelineStep({
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            <label htmlFor="timeline-date" className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
               When did it happen? *
             </label>
             <input
+              id="timeline-date"
               className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm transition-colors focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 dark:border-zinc-700 dark:bg-zinc-800"
               type="datetime-local"
               value={date}
@@ -69,10 +70,11 @@ export function TimelineStep({
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            <label htmlFor="timeline-source" className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
               Who reported this?
             </label>
             <select
+              id="timeline-source"
               className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm transition-colors focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 dark:border-zinc-700 dark:bg-zinc-800"
               value={source}
               onChange={(e) => setSource(e.target.value as PartyRole)}
@@ -82,12 +84,14 @@ export function TimelineStep({
             </select>
           </div>
           <div className="sm:col-span-2">
-            <label className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            <label htmlFor="timeline-description" className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
               What happened? *
             </label>
             <textarea
+              id="timeline-description"
               className="h-20 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm leading-relaxed transition-colors focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 dark:border-zinc-700 dark:bg-zinc-800"
               placeholder="Describe the event briefly..."
+              maxLength={5_000}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
@@ -176,7 +180,7 @@ export function TimelineStep({
 
       {/* Error */}
       {error && (
-        <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-800 dark:bg-rose-950/30 dark:text-rose-300">
+        <div role="alert" className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-800 dark:bg-rose-950/30 dark:text-rose-300">
           {error}
         </div>
       )}

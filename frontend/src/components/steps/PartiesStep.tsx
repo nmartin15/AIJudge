@@ -1,4 +1,4 @@
-import { memo, useCallback, useRef, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef, useLayoutEffect } from "react";
 import type { Party, PartyRole } from "@/lib/types";
 
 // ── Phone formatting ────────────────────────────────────────────────────────
@@ -15,84 +15,10 @@ function formatPhone(value: string): string {
   return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
 }
 
-// ── Stable text input that owns its own cursor position ─────────────────────
+// ── Shared input class ──────────────────────────────────────────────────────
 
-function StableInput({
-  value,
-  onChange,
-  placeholder,
-  type = "text",
-  formatFn,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-  type?: "text" | "tel";
-  formatFn?: (raw: string) => string;
-}) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const onChangeRef = useRef(onChange);
-  onChangeRef.current = onChange;
-
-  // Sync parent value into the input only when the input is NOT focused,
-  // so we never fight the user's cursor position mid-typing.
-  useEffect(() => {
-    const el = inputRef.current;
-    if (!el || el === document.activeElement) return;
-    const display = formatFn ? formatFn(value) : value;
-    if (el.value !== display) {
-      el.value = display;
-    }
-  }, [value, formatFn]);
-
-  const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const raw = e.target.value;
-      if (formatFn) {
-        const formatted = formatFn(raw);
-        // Preserve cursor position relative to the formatted value
-        const el = e.target;
-        const prevCursor = el.selectionStart ?? formatted.length;
-        const prevLen = raw.length;
-        el.value = formatted;
-        // Adjust cursor: if formatting added characters, shift cursor right
-        const delta = formatted.length - prevLen;
-        const newCursor = Math.max(0, prevCursor + delta);
-        el.setSelectionRange(newCursor, newCursor);
-        onChangeRef.current(stripNonDigits(raw));
-      } else {
-        onChangeRef.current(raw);
-      }
-    },
-    [formatFn],
-  );
-
-  const handleBlur = useCallback(() => {
-    const el = inputRef.current;
-    if (!el) return;
-    if (formatFn) {
-      const formatted = formatFn(el.value);
-      el.value = formatted;
-      onChangeRef.current(stripNonDigits(el.value));
-    } else {
-      onChangeRef.current(el.value);
-    }
-  }, [formatFn]);
-
-  const display = formatFn ? formatFn(value) : value;
-
-  return (
-    <input
-      ref={inputRef}
-      type={type}
-      className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm transition-colors focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 dark:border-zinc-700 dark:bg-zinc-800"
-      placeholder={placeholder}
-      defaultValue={display}
-      onChange={handleChange}
-      onBlur={handleBlur}
-    />
-  );
-}
+const INPUT_CLASS =
+  "w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm transition-colors focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 dark:border-zinc-700 dark:bg-zinc-800";
 
 // ── Party card ──────────────────────────────────────────────────────────────
 
@@ -113,7 +39,7 @@ interface PartiesStepProps {
   isBackendMode: boolean;
 }
 
-const PartyCard = memo(function PartyCard({
+function PartyCard({
   role,
   label,
   data,
@@ -132,6 +58,34 @@ const PartyCard = memo(function PartyCard({
   isSaving: boolean;
   isBackendMode: boolean;
 }) {
+  // Local state owns each input — completely decoupled from parent re-renders.
+  // Parent re-renders can NOT move the cursor because inputs read from here.
+  const [localName, setLocalName] = useState(data.name);
+  const [localAddress, setLocalAddress] = useState(data.address);
+  const [localPhone, setLocalPhone] = useState(formatPhone(data.phone));
+
+  // Re-sync only when the parent pushes a genuinely new value
+  // (form recovery on mount, or template change that resets everything).
+  // During normal typing the parent value matches local state, so
+  // setState with the same value is a no-op — no extra render.
+  useEffect(() => { setLocalName(data.name); }, [data.name]);
+  useEffect(() => { setLocalAddress(data.address); }, [data.address]);
+  useEffect(() => { setLocalPhone(formatPhone(data.phone)); }, [data.phone]);
+
+  // Phone cursor management — formatting changes the string length,
+  // so we compute the correct cursor position and apply it after React
+  // commits the new value to the DOM.
+  const phoneRef = useRef<HTMLInputElement>(null);
+  const phoneCursor = useRef<number | null>(null);
+
+  useLayoutEffect(() => {
+    const el = phoneRef.current;
+    if (el && phoneCursor.current !== null) {
+      el.setSelectionRange(phoneCursor.current, phoneCursor.current);
+      phoneCursor.current = null;
+    }
+  }, [localPhone]);
+
   return (
     <div className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
       <div className="mb-4 flex items-center justify-between">
@@ -140,47 +94,80 @@ const PartyCard = memo(function PartyCard({
         </h3>
         {isSaved && (
           <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400">
-            <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+            <svg aria-hidden="true" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
             Saved
           </span>
         )}
       </div>
+
       <div className="space-y-3">
+        {/* Full name */}
         <div>
-          <label className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
+          <label htmlFor={`${role}-name`} className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
             Full name *
           </label>
-          <StableInput
+          <input
+            id={`${role}-name`}
+            type="text"
+            className={INPUT_CLASS}
             placeholder={role === "plaintiff" ? "Your full legal name" : "Their full legal name"}
-            value={data.name}
-            onChange={(v) => onFieldChange("name", v)}
+            maxLength={255}
+            value={localName}
+            onChange={(e) => {
+              const v = e.target.value;
+              setLocalName(v);
+              onFieldChange("name", v);
+            }}
           />
         </div>
+
+        {/* Address */}
         <div>
-          <label className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
+          <label htmlFor={`${role}-address`} className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
             Address
           </label>
-          <StableInput
+          <input
+            id={`${role}-address`}
+            type="text"
+            className={INPUT_CLASS}
             placeholder="Street address, city, state"
-            value={data.address}
-            onChange={(v) => onFieldChange("address", v)}
+            maxLength={500}
+            value={localAddress}
+            onChange={(e) => {
+              const v = e.target.value;
+              setLocalAddress(v);
+              onFieldChange("address", v);
+            }}
           />
         </div>
+
+        {/* Phone */}
         <div>
-          <label className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
+          <label htmlFor={`${role}-phone`} className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
             Phone
           </label>
-          <StableInput
+          <input
+            id={`${role}-phone`}
+            ref={phoneRef}
             type="tel"
+            className={INPUT_CLASS}
             placeholder="(307) 555-0100"
-            value={data.phone}
-            onChange={(v) => onFieldChange("phone", v)}
-            formatFn={formatPhone}
+            value={localPhone}
+            onChange={(e) => {
+              const raw = e.target.value;
+              const formatted = formatPhone(raw);
+              const cursor = e.target.selectionStart ?? formatted.length;
+              const delta = formatted.length - raw.length;
+              phoneCursor.current = Math.max(0, cursor + delta);
+              setLocalPhone(formatted);
+              onFieldChange("phone", stripNonDigits(raw));
+            }}
           />
         </div>
       </div>
+
       {isBackendMode && !isSaved && (
         <button
           type="button"
@@ -193,11 +180,11 @@ const PartyCard = memo(function PartyCard({
       )}
     </div>
   );
-});
+}
 
 // ── Main step ───────────────────────────────────────────────────────────────
 
-export const PartiesStep = memo(function PartiesStep({
+export function PartiesStep({
   plaintiff,
   defendant,
   onFieldChange,
@@ -273,7 +260,7 @@ export const PartiesStep = memo(function PartiesStep({
 
       {/* Error */}
       {error && (
-        <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-800 dark:bg-rose-950/30 dark:text-rose-300">
+        <div role="alert" className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-800 dark:bg-rose-950/30 dark:text-rose-300">
           {error}
         </div>
       )}
@@ -297,4 +284,4 @@ export const PartiesStep = memo(function PartiesStep({
       </div>
     </div>
   );
-});
+}

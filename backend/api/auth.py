@@ -35,7 +35,7 @@ async def auth_me(
     return AuthMeResponse(
         session_id=session.id,
         role=session.role,
-        is_admin=session.role == OperatorRole.ADMIN,
+        is_admin=session.role == OperatorRole.admin,
     )
 
 
@@ -61,7 +61,7 @@ async def claim_admin_role(
             code="invalid_admin_key",
             message="Invalid admin key",
         )
-    session.role = OperatorRole.ADMIN
+    session.role = OperatorRole.admin
     await db.flush()
     await db.refresh(session)
     # Refresh the cookie to ensure it stays in sync

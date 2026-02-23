@@ -153,6 +153,23 @@ SAMPLE_DECISION = {
     "costs_note": "Filing fee awarded to plaintiff.",
 }
 
+SAMPLE_ADVISORY = {
+    "case_strength": {
+        "score": 8.5,
+        "label": "Very Strong",
+        "prevailing_party": "plaintiff",
+        "confidence": "high",
+        "elements_proven": 2,
+        "elements_total": 2,
+        "damages_proven": True,
+        "amount_justified": 1500.00,
+    },
+    "evidence_recommendations": [],
+    "evidence_actions": [],
+    "strategic_advice": [],
+    "court_preparation": {},
+}
+
 
 # ═══════════════════════════════════════════════════════════════════════
 # Step 1: Fact Extraction
@@ -588,6 +605,7 @@ class TestDecisionGeneration:
 class TestPipelineOrchestrator:
 
     @pytest.mark.asyncio
+    @patch("engine.pipeline.generate_advisory", new_callable=AsyncMock)
     @patch("engine.pipeline.generate_decision", new_callable=AsyncMock)
     @patch("engine.pipeline.generate_reasoning", new_callable=AsyncMock)
     @patch("engine.pipeline.score_evidence", new_callable=AsyncMock)
@@ -602,6 +620,7 @@ class TestPipelineOrchestrator:
         mock_score,
         mock_reasoning,
         mock_decision,
+        mock_advisory,
     ):
         from engine.pipeline import run_pipeline
 
@@ -635,6 +654,10 @@ class TestPipelineOrchestrator:
             "decision": SAMPLE_DECISION,
             "llm_metadata": {**MOCK_LLM_METADATA, "pipeline_step": "decision_generation"},
         }
+        mock_advisory.return_value = {
+            "advisory": SAMPLE_ADVISORY,
+            "llm_metadata": {**MOCK_LLM_METADATA, "pipeline_step": "case_advisory"},
+        }
 
         db = AsyncMock()
         result = await run_pipeline(
@@ -653,15 +676,16 @@ class TestPipelineOrchestrator:
         assert result["evidence_scores"] == SAMPLE_SCORES
         assert result["classification"] == SAMPLE_CLASSIFICATION
         assert result["extracted_facts"] == SAMPLE_FACTS
+        assert result["advisory"] == SAMPLE_ADVISORY
 
         # Verify archetype info
         assert result["archetype"]["id"] == "common_sense"
         assert result["archetype"]["name"] == "Judge Whitehorse"
 
-        # Verify metadata
+        # Verify metadata (7 steps: extract, classify, rules, score, reasoning, decision, advisory)
         metadata = result["pipeline_metadata"]
-        assert metadata["steps_completed"] == 6
-        assert len(metadata["llm_calls"]) == 5  # 5 LLM calls (rules step is RAG, not LLM)
+        assert metadata["steps_completed"] == 7
+        assert len(metadata["llm_calls"]) == 6  # 6 LLM calls (rules step is RAG, not LLM)
         assert metadata["total_cost_usd"] > 0
         assert metadata["total_latency_ms"] > 0
 
@@ -672,8 +696,10 @@ class TestPipelineOrchestrator:
         mock_score.assert_called_once()
         mock_reasoning.assert_called_once()
         mock_decision.assert_called_once()
+        mock_advisory.assert_called_once()
 
     @pytest.mark.asyncio
+    @patch("engine.pipeline.generate_advisory", new_callable=AsyncMock)
     @patch("engine.pipeline.generate_decision", new_callable=AsyncMock)
     @patch("engine.pipeline.generate_reasoning", new_callable=AsyncMock)
     @patch("engine.pipeline.score_evidence", new_callable=AsyncMock)
@@ -688,6 +714,7 @@ class TestPipelineOrchestrator:
         mock_score,
         mock_reasoning,
         mock_decision,
+        mock_advisory,
     ):
         from engine.pipeline import run_pipeline
 
@@ -716,6 +743,10 @@ class TestPipelineOrchestrator:
         mock_decision.return_value = {
             "decision": SAMPLE_DECISION,
             "llm_metadata": {**MOCK_LLM_METADATA, "pipeline_step": "decision_generation"},
+        }
+        mock_advisory.return_value = {
+            "advisory": SAMPLE_ADVISORY,
+            "llm_metadata": {**MOCK_LLM_METADATA, "pipeline_step": "case_advisory"},
         }
 
         hearing_transcript = [
@@ -738,6 +769,7 @@ class TestPipelineOrchestrator:
         assert result["judgment"] == SAMPLE_DECISION
 
     @pytest.mark.asyncio
+    @patch("engine.pipeline.generate_advisory", new_callable=AsyncMock)
     @patch("engine.pipeline.generate_decision", new_callable=AsyncMock)
     @patch("engine.pipeline.generate_reasoning", new_callable=AsyncMock)
     @patch("engine.pipeline.score_evidence", new_callable=AsyncMock)
@@ -752,6 +784,7 @@ class TestPipelineOrchestrator:
         mock_score,
         mock_reasoning,
         mock_decision,
+        mock_advisory,
     ):
         from engine.pipeline import run_pipeline
 
@@ -780,6 +813,10 @@ class TestPipelineOrchestrator:
         mock_decision.return_value = {
             "decision": SAMPLE_DECISION,
             "llm_metadata": {**MOCK_LLM_METADATA, "pipeline_step": "decision_generation"},
+        }
+        mock_advisory.return_value = {
+            "advisory": SAMPLE_ADVISORY,
+            "llm_metadata": {**MOCK_LLM_METADATA, "pipeline_step": "case_advisory"},
         }
 
         db = AsyncMock()

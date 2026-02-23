@@ -43,7 +43,7 @@ def _make_party(role: PartyRole, name: str) -> MagicMock:
 
 
 def _make_case(
-    case_type=CaseType.CONTRACT,
+    case_type=CaseType.contract,
     plaintiff_narrative="I was wronged.",
     defendant_narrative="I did nothing wrong.",
     claimed_amount=500,
@@ -63,8 +63,8 @@ def _make_case(
 
 class TestBuildCaseContext:
     def test_basic_context_with_both_parties(self):
-        plaintiff = _make_party(PartyRole.PLAINTIFF, "Alice")
-        defendant = _make_party(PartyRole.DEFENDANT, "Bob")
+        plaintiff = _make_party(PartyRole.plaintiff, "Alice")
+        defendant = _make_party(PartyRole.defendant, "Bob")
         case = _make_case(parties=[plaintiff, defendant])
 
         ctx = build_case_context(case, [plaintiff, defendant])
@@ -84,7 +84,7 @@ class TestBuildCaseContext:
         assert ctx["defendant_name"] == "Defendant"
 
     def test_only_plaintiff_provided(self):
-        plaintiff = _make_party(PartyRole.PLAINTIFF, "Alice")
+        plaintiff = _make_party(PartyRole.plaintiff, "Alice")
         case = _make_case()
         ctx = build_case_context(case, [plaintiff])
 
@@ -113,8 +113,8 @@ class TestBuildCaseContext:
 
 class TestExtractPartyNames:
     def test_extracts_both_names(self):
-        plaintiff = _make_party(PartyRole.PLAINTIFF, "Alice")
-        defendant = _make_party(PartyRole.DEFENDANT, "Bob")
+        plaintiff = _make_party(PartyRole.plaintiff, "Alice")
+        defendant = _make_party(PartyRole.defendant, "Bob")
         case = _make_case(parties=[plaintiff, defendant])
 
         p_name, d_name = extract_party_names(case)
@@ -181,17 +181,17 @@ class TestProcessHearingExchange:
 
         # Second execute: fetch conversation history
         msg1 = MagicMock()
-        msg1.role = HearingMessageRole.JUDGE
+        msg1.role = HearingMessageRole.judge
         msg1.content = "Opening statement"
         msg1.sequence = 1
 
         msg2 = MagicMock()
-        msg2.role = HearingMessageRole.PLAINTIFF
+        msg2.role = HearingMessageRole.plaintiff
         msg2.content = "My argument"
         msg2.sequence = 2
 
         msg3 = MagicMock()
-        msg3.role = HearingMessageRole.PLAINTIFF
+        msg3.role = HearingMessageRole.plaintiff
         msg3.content = "Additional details"
         msg3.sequence = 3
 
@@ -216,7 +216,7 @@ class TestProcessHearingExchange:
             hearing_id=hearing_id,
             archetype_id="stern",
             case_context=case_context,
-            user_role=HearingMessageRole.PLAINTIFF,
+            user_role=HearingMessageRole.plaintiff,
             user_content="Here is my testimony.",
         )
 
@@ -242,7 +242,7 @@ class TestProcessHearingExchange:
             hearing_id=hearing_id,
             archetype_id="stern",
             case_context=case_context,
-            user_role=HearingMessageRole.PLAINTIFF,
+            user_role=HearingMessageRole.plaintiff,
             user_content="Final statement.",
         )
 
@@ -264,7 +264,7 @@ class TestProcessHearingExchange:
             hearing_id=hearing_id,
             archetype_id="stern",
             case_context=case_context,
-            user_role=HearingMessageRole.DEFENDANT,
+            user_role=HearingMessageRole.defendant,
             user_content="My response.",
         )
 
@@ -283,7 +283,7 @@ class TestProcessHearingExchange:
             hearing_id=hearing_id,
             archetype_id="stern",
             case_context=case_context,
-            user_role=HearingMessageRole.PLAINTIFF,
+            user_role=HearingMessageRole.plaintiff,
             user_content="Can we take a break?",
         )
 
@@ -314,7 +314,7 @@ class TestProcessHearingExchange:
             hearing_id=hearing_id,
             archetype_id="empathetic",
             case_context=case_context,
-            user_role=HearingMessageRole.PLAINTIFF,
+            user_role=HearingMessageRole.plaintiff,
             user_content="Hello.",
         )
 
@@ -331,7 +331,7 @@ class TestProcessHearingExchange:
             hearing_id=hearing_id,
             archetype_id="stern",
             case_context=case_context,
-            user_role=HearingMessageRole.DEFENDANT,
+            user_role=HearingMessageRole.defendant,
             user_content="My defense.",
         )
 

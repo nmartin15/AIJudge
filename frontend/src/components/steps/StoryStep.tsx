@@ -158,6 +158,7 @@ function TemplateCombobox({
             role="combobox"
             aria-expanded={open}
             aria-haspopup="listbox"
+            aria-label="Search templates"
             className="w-full rounded-lg border border-zinc-300 bg-white py-2.5 pl-3 pr-9 text-sm transition-colors placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:placeholder:text-zinc-500"
             placeholder="Search templates…"
             value={open ? query : ""}
@@ -170,6 +171,7 @@ function TemplateCombobox({
           />
           {/* chevron */}
           <svg
+            aria-hidden="true"
             className={`pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400 transition-transform ${open ? "rotate-180" : ""}`}
             fill="none"
             viewBox="0 0 24 24"
@@ -210,6 +212,7 @@ function TemplateCombobox({
           <ul
             ref={listRef}
             role="listbox"
+            aria-label="Template options"
             className="absolute z-30 mt-1 max-h-72 w-full overflow-auto rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
           >
             {filtered.length === 0 && (
@@ -237,7 +240,7 @@ function TemplateCombobox({
                 >
                   {isBlank ? (
                     <span className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400">
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <svg aria-hidden="true" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                       </svg>
                       Start from scratch
@@ -252,7 +255,7 @@ function TemplateCombobox({
                           {t.title}
                         </span>
                         {isSelected && (
-                          <svg className="ml-auto h-4 w-4 shrink-0 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <svg aria-hidden="true" className="ml-auto h-4 w-4 shrink-0 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                           </svg>
                         )}
@@ -324,28 +327,30 @@ export function StoryStep({
       {/* Narratives */}
       <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
         <div className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-          <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          <label htmlFor="plaintiff-narrative" className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
             Your side of the story
           </label>
           <p className="mb-3 text-xs text-zinc-400 dark:text-zinc-500">
             What happened? What did you lose? Why do you believe you&apos;re owed something?
           </p>
           <textarea
+            id="plaintiff-narrative"
             className="h-36 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm leading-relaxed transition-colors focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 dark:border-zinc-700 dark:bg-zinc-800"
             placeholder="In my own words, what happened was..."
+            maxLength={50_000}
             value={plaintiffNarrative}
             onChange={(e) => onPlaintiffNarrativeChange(e.target.value)}
           />
           <div className="mt-2 flex items-center justify-between text-xs">
             <span className={pStrength.color}>{pStrength.label}</span>
             <span className="text-zinc-400">
-              {plaintiffNarrative.trim().length} characters
+              {plaintiffNarrative.trim().length.toLocaleString()} / 50,000
             </span>
           </div>
         </div>
 
         <div className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-          <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          <label htmlFor="defendant-narrative" className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
             Their side of the story
           </label>
           <p className="mb-3 text-xs text-zinc-400 dark:text-zinc-500">
@@ -353,15 +358,17 @@ export function StoryStep({
             it helps the judge see the full picture.
           </p>
           <textarea
+            id="defendant-narrative"
             className="h-36 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm leading-relaxed transition-colors focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 dark:border-zinc-700 dark:bg-zinc-800"
             placeholder="They would probably say..."
+            maxLength={50_000}
             value={defendantNarrative}
             onChange={(e) => onDefendantNarrativeChange(e.target.value)}
           />
           <div className="mt-2 flex items-center justify-between text-xs">
             <span className={dStrength.color}>{dStrength.label}</span>
             <span className="text-zinc-400">
-              {defendantNarrative.trim().length} characters
+              {defendantNarrative.trim().length.toLocaleString()} / 50,000
             </span>
           </div>
         </div>
@@ -371,7 +378,7 @@ export function StoryStep({
       <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
         {/* Amount */}
         <div className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-          <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          <label htmlFor="amount-claimed" className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
             Amount you&apos;re claiming
           </label>
           <p className="mb-3 text-xs text-zinc-400 dark:text-zinc-500">
@@ -382,6 +389,7 @@ export function StoryStep({
               $
             </span>
             <input
+              id="amount-claimed"
               className="w-full rounded-lg border border-zinc-300 bg-white py-2.5 pl-7 pr-3 text-sm transition-colors focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 dark:border-zinc-700 dark:bg-zinc-800"
               type="number"
               min={0}
@@ -434,7 +442,7 @@ export function StoryStep({
 
       {/* Error */}
       {error && (
-        <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-800 dark:bg-rose-950/30 dark:text-rose-300">
+        <div role="alert" className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-800 dark:bg-rose-950/30 dark:text-rose-300">
           {error}
         </div>
       )}
@@ -449,7 +457,7 @@ export function StoryStep({
         >
           {isSaving ? (
             <span className="flex items-center justify-center gap-2">
-              <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+              <svg aria-hidden="true" className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>

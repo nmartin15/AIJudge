@@ -171,9 +171,10 @@ describe("Home page integration flows", () => {
       expect(mockApi.addParty).toHaveBeenCalledTimes(1)
     );
 
-    const saveDefendantBtn = screen.getByRole("button", {
-      name: /save defendant/i,
-    });
+    // Wait for isSaving to clear so the defendant button text reappears
+    const saveDefendantBtn = await waitFor(() =>
+      screen.getByRole("button", { name: /save defendant/i })
+    );
     fireEvent.click(saveDefendantBtn);
     await waitFor(() =>
       expect(mockApi.addParty).toHaveBeenCalledTimes(2)

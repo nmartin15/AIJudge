@@ -46,9 +46,10 @@ export class SectionErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div className="rounded-xl border border-rose-200 bg-rose-50/50 p-6 text-center dark:border-rose-900 dark:bg-rose-950/20">
+        <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50/50 p-6 text-center dark:border-rose-900 dark:bg-rose-950/20">
           <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-950/50">
             <svg
+              aria-hidden="true"
               className="h-5 w-5 text-rose-500"
               fill="none"
               viewBox="0 0 24 24"

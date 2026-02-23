@@ -1,0 +1,28 @@
+---
+description: Keep code modular — use judgment, not line-count dogma
+alwaysApply: true
+---
+
+# Modular Code
+
+Write code in focused, composable pieces. The goal isn't hitting a line count — it's that each file has a clear reason to exist and a single job you can describe in one sentence.
+
+## When to split
+
+- When you can't describe a file's purpose in one sentence, it's doing too much.
+- When a change to one concern risks breaking an unrelated concern in the same file, they should be separate.
+- When you're scrolling past hundreds of lines to find what you need, that's a signal.
+- When the same logic could be reused elsewhere but is trapped inside a component, extract it.
+
+## When NOT to split
+
+- Don't create a file for a 10-line helper that's only used in one place — co-location beats purity.
+- Don't split purely to hit a number. A 300-line file with one cohesive concern is fine.
+- Don't over-abstract early. Wait until a pattern repeats or complexity warrants it.
+
+## Pragmatic defaults
+
+- Page/route components should mostly wire things together and render. Heavy logic belongs in hooks or services.
+- Custom hooks should each own one concern (form state, API calls, WebSocket, etc.). Composing small hooks is better than one god-hook.
+- Route handlers (FastAPI) should be thin — validate input, call a service, return output.
+- Ask "would a new contributor understand this file in under 2 minutes?" If not, it probably needs restructuring.

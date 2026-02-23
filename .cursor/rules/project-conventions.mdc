@@ -1,0 +1,41 @@
+---
+description: Wyoming AI Judge project conventions and architecture
+alwaysApply: true
+---
+
+# Project Conventions
+
+## Architecture
+
+- **Frontend**: Next.js 16 + React 19 + Tailwind 4, app router at `frontend/`
+- **Backend**: FastAPI + SQLAlchemy async + PostgreSQL at `backend/`
+- **Tests**: Vitest (frontend, 189 tests), Pytest (backend, 137 tests) — always run tests after changes
+
+## Frontend structure
+
+- `src/app/page.tsx` — thin render layer, delegates to hooks
+- `src/lib/use*.ts` — custom hooks (useCaseWizard, useSimulation, useCorpusAdmin, useHearing, useToasts, etc.)
+- `src/lib/api.ts` — API client with retries/timeouts
+- `src/components/steps/` — wizard step components
+- `src/components/` — shared components (HearingRoom, JudgmentView, ErrorBoundary)
+
+## Backend structure
+
+- `api/` — route handlers (thin, delegate to services/engine)
+- `engine/` — 7-step judicial reasoning pipeline
+- `services/` — business logic
+- `models/` — SQLAlchemy models + Pydantic schemas
+- `corpus/` — RAG retrieval system
+- `db/` — database connection and encrypted column types
+
+## Testing
+
+- Frontend tests mock `@/lib/api` and `@/lib/simulationService` — never make real API calls
+- Backend tests use `DummyDB` stub — never need a real database
+- Run `npx vitest run` (frontend) and `pytest` (backend) to verify changes
+
+## Style
+
+- Wyoming branding: navy (`wy-navy`), gold (`wy-gold`), cream
+- TypeScript strict mode enabled
+- Python type hints expected on public functions

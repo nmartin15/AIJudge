@@ -137,6 +137,48 @@ docs/              API contract and developer documentation
 docker-compose.yml Docker orchestration (Postgres + Backend + Frontend)
 ```
 
+## Testing
+
+The project has **326 automated tests** (137 backend + 189 frontend) covering API endpoints, the judicial reasoning pipeline, UI components, custom hooks, and error handling.
+
+### Running Tests
+
+```bash
+# Backend (requires DATABASE_URL env var — tests mock the actual DB)
+cd backend
+$env:DATABASE_URL="postgresql+asyncpg://test:test@localhost:5432/test"  # PowerShell
+python -m pytest
+
+# Frontend
+cd frontend
+npm test
+```
+
+### Backend Tests (137 tests across 12 files)
+
+| Area | File | What it covers |
+|------|------|----------------|
+| Pipeline | `test_pipeline.py` | Full 7-step judicial reasoning pipeline (fact extraction → advisory) |
+| Auth & roles | `test_auth_role_integration.py` | Session creation, admin login, role enforcement, corpus endpoints |
+| Ownership | `test_ownership_enforcement.py` | Case ownership validation, session header requirements |
+| Hearings | `test_hearing_service.py`, `test_hearing_http_fallback.py`, `test_hearing_websocket_auth.py` | Hearing lifecycle, HTTP fallback messaging, WebSocket auth |
+| CRUD | `test_case_update.py`, `test_party_hearing_duplicates.py` | Case updates, duplicate party/hearing prevention |
+| Security | `test_crypto.py`, `test_file_download_security.py`, `test_upload_validation.py` | Fernet encryption, file download auth, upload size/type checks |
+| Rate limiting | `test_rate_limiting.py` | Per-session rate limits on judgment, corpus, and admin endpoints |
+
+### Frontend Tests (189 tests across 20 files)
+
+| Area | Files | What it covers |
+|------|-------|----------------|
+| Step components | `PartiesStep`, `EvidenceStep`, `TimelineStep`, `StoryStep`, `ReviewStep` | Form rendering, validation, save/clear flows, navigation |
+| Core components | `HearingRoom`, `JudgmentView`, `ErrorBoundary`, `SectionErrorBoundary` | Hearing UI, judgment display, error recovery |
+| UI components | `ProgressBar`, `ToastContainer` | Step progress, toast notifications |
+| Custom hooks | `useHearing`, `useToasts`, `useFormPersistence`, `useUnsavedChangesWarning` | WebSocket/HTTP hearing, toast lifecycle, sessionStorage persistence, beforeunload |
+| API client | `api.test.ts` | Fetch wrapper, retries, timeouts, session management, error parsing |
+| Simulation | `simulationService.test.ts`, `mockSimulation.test.ts` | Backend/mock mode switching, mock scoring logic |
+| Integration | `page.integration.test.tsx` | Full wizard flow: intake → hearing → judgment → multi-judge comparison |
+| Error paths | `page.error-paths.test.tsx` | API failures at each wizard step (case creation, parties, evidence, timeline, hearing) |
+
 ## Security
 
 This application includes several security hardening measures:

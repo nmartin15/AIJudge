@@ -42,8 +42,8 @@ def _make_case(case_id, session_id):
     c = MagicMock(spec=Case)
     c.id = case_id
     c.session_id = uuid.UUID(session_id)
-    c.status = CaseStatus.INTAKE
-    c.case_type = CaseType.CONTRACT
+    c.status = CaseStatus.intake
+    c.case_type = CaseType.contract
     c.plaintiff_narrative = "Original narrative"
     c.defendant_narrative = "Original defense"
     c.claimed_amount = 500

@@ -30,7 +30,8 @@ The frontend `ApiClientError` class parses `backendCode` and `retryable` from it
 | Code                            | HTTP | Retryable | When                                                  |
 |---------------------------------|------|:---------:|-------------------------------------------------------|
 | `bad_request`                   | 400  | no        | Generic invalid request                               |
-| `unauthorized`                  | 401  | no        | Missing session identifier (cookie or `X-Session-Id` header) |
+| `session_required`              | 401  | no        | Missing session identifier (cookie or `X-Session-Id` header) |
+| `unauthorized`                  | 401  | no        | Generic authentication failure (fallback)             |
 | `forbidden`                     | 403  | no        | Non-admin session tried an admin endpoint             |
 | `not_found`                     | 404  | no        | Resource does not exist                               |
 | `conflict`                      | 409  | no        | Duplicate party, existing judgment, etc.              |

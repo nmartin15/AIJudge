@@ -108,6 +108,7 @@ export function HearingRoom({
         </p>
         <div className="mt-2 flex items-center justify-center gap-2">
           <span
+            aria-hidden="true"
             className={`inline-block h-2 w-2 rounded-full ${
               isConnected
                 ? "bg-emerald-500"
@@ -116,7 +117,7 @@ export function HearingRoom({
                   : "bg-zinc-300"
             }`}
           />
-          <span className="text-xs text-zinc-400">
+          <span role="status" className="text-xs text-zinc-400">
             {isConnected
               ? "Live connection"
               : hasHearingRecord
@@ -146,7 +147,7 @@ export function HearingRoom({
           >
             {isStarting ? (
               <span className="flex items-center gap-2">
-                <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                <svg aria-hidden="true" className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
@@ -170,7 +171,7 @@ export function HearingRoom({
       {!hearingNotStarted && (
         <>
           {/* Message area */}
-          <div className="flex-1 overflow-y-auto rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900/50">
+          <div role="log" aria-live="polite" className="flex-1 overflow-y-auto rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900/50">
             {messages.length === 0 ? (
               <div className="flex h-full items-center justify-center">
                 <p className="text-sm text-zinc-400">Waiting for the hearing to begin...</p>
@@ -212,12 +213,12 @@ export function HearingRoom({
 
                 {/* Thinking indicator */}
                 {isSending && (
-                  <div className="flex justify-start">
+                  <div className="flex justify-start" aria-label="Judge is thinking" role="status">
                     <div className="rounded-2xl rounded-tl-md bg-white px-4 py-3 shadow-sm dark:bg-zinc-800">
                       <p className="mb-1 text-xs font-semibold text-zinc-500 dark:text-zinc-400">
                         {judge.name.split(" ").pop()}
                       </p>
-                      <div className="flex items-center gap-1.5">
+                      <div aria-hidden="true" className="flex items-center gap-1.5">
                         <span className="h-2 w-2 animate-bounce rounded-full bg-zinc-400 [animation-delay:0ms]" />
                         <span className="h-2 w-2 animate-bounce rounded-full bg-zinc-400 [animation-delay:150ms]" />
                         <span className="h-2 w-2 animate-bounce rounded-full bg-zinc-400 [animation-delay:300ms]" />
@@ -233,7 +234,7 @@ export function HearingRoom({
 
           {/* Concluded banner */}
           {concluded && (
-            <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-5 text-center dark:border-emerald-800 dark:bg-emerald-950/20">
+            <div role="status" className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-5 text-center dark:border-emerald-800 dark:bg-emerald-950/20">
               <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
                 The hearing has concluded.
               </p>
@@ -255,6 +256,7 @@ export function HearingRoom({
             <div className="safe-bottom sticky bottom-0 z-10 -mx-4 mt-4 border-t border-zinc-200 bg-white/95 px-3 py-3 backdrop-blur-sm sm:relative sm:mx-0 sm:rounded-xl sm:border sm:p-4 sm:shadow-none dark:border-zinc-800 dark:bg-zinc-900/95">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-3">
                 <select
+                  aria-label="Speaking as"
                   className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm transition-colors focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 sm:w-auto sm:flex-shrink-0 dark:border-zinc-700 dark:bg-zinc-800"
                   value={role}
                   onChange={(e) =>
@@ -271,8 +273,10 @@ export function HearingRoom({
                 <div className="flex flex-1 gap-2">
                   <textarea
                     ref={textareaRef}
+                    aria-label="Your response to the judge"
                     className="min-w-0 flex-1 resize-none rounded-lg border border-zinc-300 bg-white px-3 py-3 text-sm leading-relaxed transition-colors focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 sm:py-2.5 dark:border-zinc-700 dark:bg-zinc-800"
                     rows={1}
+                    maxLength={10_000}
                     value={input}
                     onChange={(e) => onInputChange(e.target.value)}
                     onKeyDown={handleKeyDown}

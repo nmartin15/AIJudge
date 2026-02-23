@@ -65,7 +65,7 @@ async def start_hearing(
     # Save opening message
     msg = HearingMessage(
         hearing_id=hearing.id,
-        role=HearingMessageRole.JUDGE,
+        role=HearingMessageRole.judge,
         content=opening["content"],
         sequence=1,
     )
@@ -73,7 +73,7 @@ async def start_hearing(
     await db.flush()
 
     # Update case status
-    case.status = CaseStatus.HEARING
+    case.status = CaseStatus.hearing
     case.archetype_id = body.archetype_id
     await db.flush()
 
@@ -199,7 +199,7 @@ async def hearing_websocket(websocket: WebSocket, case_id: str):
 
             try:
                 role_enum = HearingMessageRole(role_str)
-                if role_enum == HearingMessageRole.JUDGE:
+                if role_enum == HearingMessageRole.judge:
                     await websocket.send_json({"error": "Cannot send messages as judge"})
                     continue
             except ValueError:
@@ -223,7 +223,7 @@ async def hearing_websocket(websocket: WebSocket, case_id: str):
                     raise
 
             await websocket.send_json({
-                "role": HearingMessageRole.JUDGE.value,
+                "role": HearingMessageRole.judge.value,
                 "content": exchange.judge_content,
                 "sequence": exchange.judge_sequence,
             })
@@ -292,7 +292,7 @@ async def post_hearing_message(
 
     return {
         "judge_message": {
-            "role": HearingMessageRole.JUDGE.value,
+            "role": HearingMessageRole.judge.value,
             "content": exchange.judge_content,
             "sequence": exchange.judge_sequence,
         },

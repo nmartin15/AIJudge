@@ -32,9 +32,9 @@ def build_case_context(case: Case, parties: list[Party]) -> dict:
     plaintiff_name = "Plaintiff"
     defendant_name = "Defendant"
     for p in parties:
-        if p.role == PartyRole.PLAINTIFF:
+        if p.role == PartyRole.plaintiff:
             plaintiff_name = p.name
-        elif p.role == PartyRole.DEFENDANT:
+        elif p.role == PartyRole.defendant:
             defendant_name = p.name
 
     return {
@@ -52,9 +52,9 @@ def extract_party_names(case: Case) -> tuple[str, str]:
     plaintiff_name = "Plaintiff"
     defendant_name = "Defendant"
     for party in case.parties:
-        if party.role == PartyRole.PLAINTIFF:
+        if party.role == PartyRole.plaintiff:
             plaintiff_name = party.name
-        elif party.role == PartyRole.DEFENDANT:
+        elif party.role == PartyRole.defendant:
             defendant_name = party.name
     return plaintiff_name, defendant_name
 
@@ -126,7 +126,7 @@ async def process_hearing_exchange(
     # Persist the judge's message
     judge_msg = HearingMessage(
         hearing_id=hearing_id,
-        role=HearingMessageRole.JUDGE,
+        role=HearingMessageRole.judge,
         content=judge_content,
         sequence=judge_seq,
     )

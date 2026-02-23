@@ -121,8 +121,8 @@ describe("StoryStep", () => {
         })}
       />
     );
-    expect(screen.getByText("11 characters")).toBeInTheDocument();
-    expect(screen.getByText("13 characters")).toBeInTheDocument();
+    expect(screen.getByText(/11\s*\/\s*50,000/)).toBeInTheDocument();
+    expect(screen.getByText(/13\s*\/\s*50,000/)).toBeInTheDocument();
   });
 
   it("renders the claimed amount input", () => {

@@ -24,14 +24,20 @@ class _ExecuteResult:
     def scalars(self):
         return _ScalarResult(self._values)
 
+    def all(self):
+        return list(self._values)
+
 
 class _FakeDB:
     def __init__(self):
         self.sessions: dict[uuid.UUID, Session] = {}
 
     async def execute(self, *args, **kwargs):
-        # Corpus stats endpoint reads source_type values and aggregates counts.
-        return _ExecuteResult(["statute", "rule", "rule"])
+        stmt = args[0] if args else None
+        if stmt is not None and hasattr(stmt, "is_dml") and stmt.is_dml:
+            return _ExecuteResult([])
+        # Corpus stats: GROUP BY source_type → (source_type, count) rows
+        return _ExecuteResult([("statute", 1), ("rule", 2)])
 
     async def get(self, model, identity):
         if model is Session:
@@ -43,7 +49,7 @@ class _FakeDB:
             if obj.id is None:
                 obj.id = uuid.uuid4()
             if obj.role is None:
-                obj.role = OperatorRole.VIEWER
+                obj.role = OperatorRole.viewer
             if obj.created_at is None:
                 obj.created_at = datetime.now(timezone.utc)
             self.sessions[obj.id] = obj
@@ -67,7 +73,7 @@ def test_auth_and_admin_corpus_flow(monkeypatch):
     fake_db = _FakeDB()
     monkeypatch.setattr(
         "api.security.get_settings",
-        lambda: SimpleNamespace(admin_api_keys=["integration-admin-key"]),
+        lambda: SimpleNamespace(admin_api_keys=["integration-admin-key"], debug=True),
     )
 
     with _make_client(fake_db) as client:
@@ -115,7 +121,7 @@ def test_corpus_search_requires_admin_role(monkeypatch):
     fake_db = _FakeDB()
     monkeypatch.setattr(
         "api.security.get_settings",
-        lambda: SimpleNamespace(admin_api_keys=["integration-admin-key"]),
+        lambda: SimpleNamespace(admin_api_keys=["integration-admin-key"], debug=True),
     )
 
     with _make_client(fake_db) as client:

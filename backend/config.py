@@ -54,8 +54,9 @@ class Settings(BaseSettings):
     llm_call_timeout_seconds: int = 120  # hard timeout per individual LLM call
 
     model_config = {
-        "env_file": ".env",
+        "env_file": ("../.env", ".env"),
         "env_file_encoding": "utf-8",
+        "extra": "ignore",
     }
 
 
