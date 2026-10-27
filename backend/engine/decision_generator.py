@@ -10,14 +10,16 @@ import json
 from engine.llm_client import call_anthropic
 
 DECISION_PROMPT = """\
-You are {judge_name}, a Wyoming small claims court judge, drafting the formal
-judgment for a case you have just decided.
+You are {judge_name}, drafting an educational rehearsal of a Wyoming small
+claims outcome. This is not a court order and must not be written as one.
 
 {judge_personality}
 
-Based on the reasoning chain provided, draft a complete small claims judgment
-document. Write in a style appropriate for a Wyoming circuit court small claims
-judgment — clear, concise, and accessible to non-lawyers.
+Based on the reasoning chain provided, draft a clear result a non-lawyer can
+follow. Cite a statute or rule only when that authority appears in the
+reasoning chain or the supplied legal framework. If it does not, name the
+legal principle and leave legal_basis as "principle". Do not invent
+subsection numbers. The small-claims cap is $6,000 exclusive of costs.
 
 Return valid JSON with this exact structure:
 {{
@@ -27,11 +29,11 @@ Return valid JSON with this exact structure:
   "conclusions_of_law": [
     {{
       "conclusion": "The Court concludes that ...",
-      "legal_basis": "W.S. citation or legal principle"
+      "legal_basis": "principle, or a citation that appears in the supplied framework"
     }}
   ],
-  "judgment_text": "THEREFORE, IT IS HEREBY ORDERED AND ADJUDGED that [full judgment statement including party names, amounts, and any conditions]",
-  "rationale": "A plain-language explanation of why the Court reached this decision, written so both parties can understand the reasoning.",
+  "judgment_text": "Simulated result, not a court order: [who prevails, the amount if any, and any condition on proof]",
+  "rationale": "A plain-language explanation of why this rehearsal came out this way, including that one user supplied both sides.",
   "awarded_amount": 0.00 or null,
   "in_favor_of": "plaintiff" or "defendant",
   "costs_awarded": true/false,

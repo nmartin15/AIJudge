@@ -31,6 +31,8 @@ async def run_pipeline(
     claimed_amount: float | None = None,
     archetype_id: str = "common_sense",
     hearing_transcript: list[dict] | None = None,
+    submitted_evidence: list[dict] | None = None,
+    timeline_events: list[dict] | None = None,
 ) -> dict:
     """
     Execute the full judicial reasoning pipeline.
@@ -47,6 +49,8 @@ async def run_pipeline(
         claimed_amount: Dollar amount being claimed
         archetype_id: Which judge archetype to use
         hearing_transcript: Optional hearing messages
+        submitted_evidence: Evidence rows saved on the case
+        timeline_events: Timeline rows saved on the case
 
     Returns:
         Complete pipeline output with judgment and all intermediate results
@@ -61,6 +65,8 @@ async def run_pipeline(
         plaintiff_name=plaintiff_name,
         defendant_name=defendant_name,
         claimed_amount=claimed_amount,
+        submitted_evidence=submitted_evidence,
+        timeline_events=timeline_events,
     )
     all_llm_calls.append(fact_result["llm_metadata"])
     facts = fact_result["facts"]
@@ -88,6 +94,8 @@ async def run_pipeline(
         classification=classification,
         claim_elements=rules["claim_elements"],
         archetype_modifiers=archetype.get("evidence_modifiers"),
+        submitted_evidence=submitted_evidence,
+        timeline_events=timeline_events,
     )
     all_llm_calls.append(scoring_result["llm_metadata"])
     scores = scoring_result["scores"]
@@ -100,6 +108,8 @@ async def run_pipeline(
         evidence_scores=scores,
         archetype=archetype,
         hearing_transcript=hearing_transcript,
+        submitted_evidence=submitted_evidence,
+        timeline_events=timeline_events,
     )
     all_llm_calls.append(reasoning_result["llm_metadata"])
     reasoning = reasoning_result["reasoning"]

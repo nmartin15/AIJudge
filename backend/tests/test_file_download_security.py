@@ -19,6 +19,7 @@ from services.file_service import (
     ALLOWED_EXTENSIONS,
     _sanitize_filename,
     _validate_extension,
+    pipeline_excerpt,
     read_and_decrypt,
     safe_filename,
 )
@@ -156,3 +157,54 @@ class TestSafeFilename:
         result = safe_filename("uploads/subdir/nested/file.txt")
         assert "/" not in result
         assert result == "file.txt"
+
+
+class TestPipelineExcerpt:
+    def test_reads_text_and_omits_the_server_path(self):
+        with patch(
+            "services.file_service.read_and_decrypt",
+            return_value=b"Lease ended June 1.",
+        ):
+            text = pipeline_excerpt(r"C:\uploads\case\note.txt")
+        assert text == "Lease ended June 1."
+        assert "uploads" not in text
+
+    def test_pdf_is_marked_attached_and_not_transcribed(self):
+        with patch(
+            "services.file_service.read_and_decrypt",
+            return_value=b"%PDF-1.7",
+        ):
+            text = pipeline_excerpt("/uploads/case/scan.pdf")
+        assert text is not None
+        assert "not transcribed" in text
+
+    def test_docx_extracts_document_text(self):
+        import zipfile
+        from io import BytesIO
+
+        xml = (
+            '<?xml version="1.0"?>'
+            '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+            "<w:body><w:p><w:r><w:t>Rent was paid.</w:t></w:r></w:p></w:body>"
+            "</w:document>"
+        )
+        buffer = BytesIO()
+        with zipfile.ZipFile(buffer, "w") as archive:
+            archive.writestr("word/document.xml", xml)
+        with patch(
+            "services.file_service.read_and_decrypt",
+            return_value=buffer.getvalue(),
+        ):
+            assert pipeline_excerpt("/uploads/case/letter.docx") == "Rent was paid."
+
+    def test_unreadable_file_does_not_raise(self):
+        with patch(
+            "services.file_service.read_and_decrypt",
+            side_effect=HTTPException(status_code=404, detail="missing"),
+        ):
+            text = pipeline_excerpt("/uploads/case/gone.txt")
+        assert text is not None
+        assert "could not be read" in text
+
+    def test_missing_path_returns_none(self):
+        assert pipeline_excerpt(None) is None

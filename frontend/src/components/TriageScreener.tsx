@@ -80,25 +80,25 @@ function evaluateAnswers(answers: TriageAnswers): TriageResult {
 
   if (answers.amount === "over_6000") {
     warnings.push(
-      "Wyoming small claims court has a $6,000 maximum. You may need to file in district court or reduce your claim to $6,000."
+      "Wyoming small claims court has a $6,000 maximum, exclusive of costs. You can reduce the claim to $6,000, or file a regular circuit-court civil case. Circuit court hears civil claims through $50,000. District court is for a claim above that."
     );
     suitable = false;
   }
 
   if (answers.timeframe === "over_4years") {
     warnings.push(
-      "Wyoming's statute of limitations for most claims is 4 years for written contracts and 4 years for oral contracts (W.S. 1-3-105). Your claim may be time-barred."
+      "The time limit depends on the claim. Under W.S. 1-3-105, a written contract is 10 years, an oral contract is 8 years, and property damage or fraud is 4 years. A claim older than 4 years may be too late if it is property damage or fraud, and still timely if it is a contract."
     );
     suitable = false;
   } else if (answers.timeframe === "2_4years") {
     warnings.push(
-      "Your dispute is approaching the statute of limitations. Consider filing promptly to preserve your claim."
+      "Some claims have a 4-year limit, including property damage and fraud. Written contracts have 10 years and oral contracts have 8, under W.S. 1-3-105. Check which period fits this dispute before you wait."
     );
   }
 
   if (answers.triedResolving === "no") {
     suggestions.push(
-      "Wyoming courts encourage parties to attempt resolution before filing. Send a written demand letter first — it also becomes good evidence."
+      "The small-claims affidavit must say that demand was made and payment was refused. Send a written demand first, and keep a copy."
     );
   } else if (answers.triedResolving === "yes_verbal") {
     suggestions.push(

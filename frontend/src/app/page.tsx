@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { mockCaseTemplates } from "@/lib/mockSimulation";
 import { SIMULATION_MODE } from "@/lib/simulationService";
 import { getJudgmentMetadata } from "@/lib/api";
@@ -22,6 +23,32 @@ import { SectionErrorBoundary } from "@/components/SectionErrorBoundary";
 import { SimulationStatusBanner } from "@/components/simulation/SimulationStatusBanner";
 import { QualityGatesPanel } from "@/components/simulation/QualityGatesPanel";
 import { CorpusAdminPanel } from "@/components/simulation/CorpusAdminPanel";
+import { TriageScreener } from "@/components/TriageScreener";
+
+function DemoNotices({ corpusCurrent }: { corpusCurrent: boolean | null }) {
+  const mockMode = SIMULATION_MODE === "mock";
+  const staleCorpus = corpusCurrent === false;
+  if (!mockMode && !staleCorpus) return null;
+
+  return (
+    <div className="mb-6 space-y-3">
+      {mockMode && (
+        <p className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm leading-relaxed text-amber-950 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100">
+          Mock mode is on. It does not read the stories or pick a winner.
+          Set NEXT_PUBLIC_SIMULATION_MODE=backend and restart the frontend
+          before a live pipeline demo.
+        </p>
+      )}
+      {staleCorpus && (
+        <p className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm leading-relaxed text-amber-950 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100">
+          The stored legal corpus does not match the current statute
+          summaries. Re-ingest it from Developer tools before the live demo
+          so the pipeline cites the updated text.
+        </p>
+      )}
+    </div>
+  );
+}
 
 export default function Home() {
   const wizard = useCaseWizard();
@@ -38,10 +65,12 @@ export default function Home() {
     addToast: wizard.addToast,
   });
   const corpus = useCorpusAdmin();
+  const [triageComplete, setTriageComplete] = useState(false);
 
   useUnsavedChangesWarning(wizard.hasUnsavedChanges);
 
   function handleStartOver(): void {
+    setTriageComplete(false);
     wizard.loadTemplate(wizard.defaultTemplate.id);
     simulation.resetSimulation();
   }
@@ -51,14 +80,16 @@ export default function Home() {
     return (
       <>
         <main className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-10">
+          <DemoNotices corpusCurrent={simulation.corpusCurrent} />
           <SectionErrorBoundary section="Judgment">
             <JudgmentView
               result={
                 simulation.result ?? {
-                  winner: "defendant",
+                  winner: "plaintiff",
                   awardAmount: 0,
-                  confidence: 0,
-                  rationale: "",
+                  confidence: null,
+                  decided: false,
+                  rationale: "No rehearsal result yet.",
                   citedAuthorities: [],
                   findingsOfFact: [],
                   conclusionsOfLaw: [],
@@ -89,6 +120,7 @@ export default function Home() {
     return (
       <>
         <main className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-10">
+          <DemoNotices corpusCurrent={simulation.corpusCurrent} />
           <SectionErrorBoundary section="Hearing">
             <HearingRoom
               judgeId={wizard.judgeId}
@@ -131,6 +163,15 @@ export default function Home() {
     <>
       <main className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-10">
         {/* Warm welcome header */}
+        <DemoNotices corpusCurrent={simulation.corpusCurrent} />
+
+        {!triageComplete ? (
+          <TriageScreener
+            onComplete={() => setTriageComplete(true)}
+            onSkip={() => setTriageComplete(true)}
+          />
+        ) : (
+        <>
         <header className="mb-8 text-center sm:mb-10">
           <h1 className="text-2xl font-bold tracking-tight text-wy-navy sm:text-4xl dark:text-white">
             Let&apos;s figure out your case
@@ -338,6 +379,8 @@ export default function Home() {
             />
           </div>
         </details>
+        </>
+        )}
       </main>
       <ToastContainer toasts={wizard.toasts} onDismiss={wizard.removeToast} />
     </>

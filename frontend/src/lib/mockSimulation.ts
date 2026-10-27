@@ -45,7 +45,8 @@ export interface SimulationInput {
 export interface SimulationOutput {
   winner: "plaintiff" | "defendant";
   awardAmount: number;
-  confidence: number;
+  confidence: number | null;
+  decided?: boolean;
   rationale: string;
   citedAuthorities: string[];
   findingsOfFact: string[];
@@ -111,7 +112,7 @@ export const mockCaseTemplates: MockCaseTemplate[] = [
     defendantNarrative:
       "Landlord alleges cleaning and carpet repair exceeded normal wear and tear, and that photos taken at move-out justify the full withholding.",
     amountClaimed: 1500,
-    citations: ["Wyo. Stat. § 1-21-1208", "W.R.E. 401"],
+    citations: ["W.S. 1-21-1208", "Small Claims Rule 6"],
     tags: ["security deposit", "landlord", "tenant", "rental", "move-out", "deductions", "withholding"],
   },
   {
@@ -123,7 +124,7 @@ export const mockCaseTemplates: MockCaseTemplate[] = [
     defendantNarrative:
       "Landlord states the pre-move-in inspection showed acceptable carpet, and the tenant's pet caused stains that required full replacement.",
     amountClaimed: 800,
-    citations: ["Wyo. Stat. § 1-21-1208", "W.R.E. 401", "W.R.E. 1002"],
+    citations: ["W.S. 1-21-1208"],
     tags: ["security deposit", "carpet", "pet damage", "partial return", "rental"],
   },
 
@@ -137,7 +138,7 @@ export const mockCaseTemplates: MockCaseTemplate[] = [
     defendantNarrative:
       "Landlord says the tenant never submitted written repair requests and that mold was caused by the tenant's failure to ventilate the bathroom.",
     amountClaimed: 950,
-    citations: ["Wyo. Stat. § 1-21-1202", "Wyo. Stat. § 1-21-1206"],
+    citations: ["W.S. 1-21-1202", "W.S. 1-21-1203"],
     tags: ["landlord", "tenant", "mold", "habitability", "rent withholding", "repairs", "heating"],
   },
   {
@@ -149,7 +150,7 @@ export const mockCaseTemplates: MockCaseTemplate[] = [
     defendantNarrative:
       "Landlord states the tenant was three weeks behind on rent and verbally agreed to vacate after being notified of the overdue balance.",
     amountClaimed: 2200,
-    citations: ["Wyo. Stat. § 1-21-1203", "Wyo. Stat. § 6-3-407"],
+    citations: ["W.S. 1-21-201", "W.S. 1-21-1001"],
     tags: ["landlord", "tenant", "eviction", "lockout", "lease", "wrongful"],
   },
 
@@ -163,7 +164,7 @@ export const mockCaseTemplates: MockCaseTemplate[] = [
     defendantNarrative:
       "Defendant argues prior existing damage inflated the claimed repair amount and that the bumper had a dent before the incident.",
     amountClaimed: 980,
-    citations: ["Wyo. Stat. § 1-1-109", "W.R.E. 702"],
+    citations: ["W.S. 1-1-109"],
     tags: ["vehicle", "car", "accident", "fender bender", "parking lot", "bumper"],
   },
   {
@@ -175,7 +176,7 @@ export const mockCaseTemplates: MockCaseTemplate[] = [
     defendantNarrative:
       "Defendant says the windshield crack was from a rock on the highway, the dent was minor, and extra mileage was needed due to a second trip the owner approved verbally.",
     amountClaimed: 1800,
-    citations: ["Wyo. Stat. § 1-1-109", "W.R.E. 401"],
+    citations: ["W.S. 1-1-109"],
     tags: ["vehicle", "truck", "borrowed", "loaned", "windshield", "property damage"],
   },
 
@@ -189,7 +190,7 @@ export const mockCaseTemplates: MockCaseTemplate[] = [
     defendantNarrative:
       "Contractor claims work paused because the homeowner changed the scope mid-project and refused to pay for additional materials.",
     amountClaimed: 2400,
-    citations: ["Wyo. Stat. § 1-23-105", "W.R.C.P. 26"],
+    citations: ["W.S. 1-21-201"],
     tags: ["contract", "contractor", "home repair", "deck", "incomplete work"],
   },
   {
@@ -201,7 +202,7 @@ export const mockCaseTemplates: MockCaseTemplate[] = [
     defendantNarrative:
       "Photographer had a family emergency and offered to reschedule; the couple refused and hired someone else, so the contract's cancellation clause applies.",
     amountClaimed: 1200,
-    citations: ["Wyo. Stat. § 1-23-105", "W.R.E. 803(6)"],
+    citations: ["W.S. 1-21-201"],
     tags: ["contract", "wedding", "photographer", "deposit", "cancellation", "services"],
   },
   {
@@ -213,7 +214,7 @@ export const mockCaseTemplates: MockCaseTemplate[] = [
     defendantNarrative:
       "Company says the installation met industry standards, warping is due to extreme temperature swings, and the homeowner didn't water the post concrete as instructed.",
     amountClaimed: 3500,
-    citations: ["Wyo. Stat. § 1-23-105", "W.R.E. 702"],
+    citations: ["W.S. 1-21-201"],
     tags: ["contract", "fence", "installation", "defective work", "home improvement"],
   },
 
@@ -227,7 +228,7 @@ export const mockCaseTemplates: MockCaseTemplate[] = [
     defendantNarrative:
       "Seller disclosed the vehicle was sold as-is, buyer had the opportunity to inspect and chose not to get a pre-purchase mechanic check.",
     amountClaimed: 4500,
-    citations: ["Wyo. Stat. § 40-12-108", "W.R.E. 401"],
+    citations: ["W.S. 1-21-201"],
     tags: ["consumer", "used car", "as-is", "fraud", "engine", "defective"],
   },
   {
@@ -239,7 +240,7 @@ export const mockCaseTemplates: MockCaseTemplate[] = [
     defendantNarrative:
       "Store says the unit shows signs of impact damage on the compressor housing, which voids the warranty per the written terms.",
     amountClaimed: 1100,
-    citations: ["Wyo. Stat. § 40-12-108", "UCC § 2-314"],
+    citations: ["W.S. 1-21-201"],
     tags: ["consumer", "warranty", "appliance", "refrigerator", "defective product"],
   },
 
@@ -253,7 +254,7 @@ export const mockCaseTemplates: MockCaseTemplate[] = [
     defendantNarrative:
       "Defendant says the money was a gift to help with medical bills, not a loan, and that no written agreement was ever signed.",
     amountClaimed: 3000,
-    citations: ["Wyo. Stat. § 1-3-105", "W.R.E. 801(d)(2)"],
+    citations: ["W.S. 1-21-202"],
     tags: ["loan", "debt", "personal loan", "friend", "gift", "repayment", "text messages"],
   },
   {
@@ -265,7 +266,7 @@ export const mockCaseTemplates: MockCaseTemplate[] = [
     defendantNarrative:
       "Defendant claims the quoted estimate was $1,200, the final bill was inflated without consent, and the vet performed procedures beyond what was authorized.",
     amountClaimed: 2100,
-    citations: ["Wyo. Stat. § 1-3-105", "W.R.E. 803(6)"],
+    citations: ["W.S. 1-21-202"],
     tags: ["debt", "veterinary", "vet bill", "payment plan", "medical", "animal"],
   },
 
@@ -279,7 +280,7 @@ export const mockCaseTemplates: MockCaseTemplate[] = [
     defendantNarrative:
       "Business owner says the designer delivered the site three weeks late, the final product had bugs, and the delay cost them revenue during a seasonal promotion.",
     amountClaimed: 1500,
-    citations: ["Wyo. Stat. § 27-4-104", "W.R.E. 803(6)"],
+    citations: ["W.S. 1-21-201"],
     tags: ["wages", "freelance", "web design", "unpaid", "services", "invoice"],
   },
   {
@@ -291,7 +292,7 @@ export const mockCaseTemplates: MockCaseTemplate[] = [
     defendantNarrative:
       "Ranch owner says the worker left the job unfinished, damaged a tractor, and the work quality was poor — requiring a replacement worker to redo several sections of fence.",
     amountClaimed: 2800,
-    citations: ["Wyo. Stat. § 27-4-104", "Wyo. Stat. § 27-4-101"],
+    citations: ["W.S. 27-4-104"],
     tags: ["wages", "ranch", "labor", "unpaid work", "agriculture", "employment"],
   },
 
@@ -305,7 +306,7 @@ export const mockCaseTemplates: MockCaseTemplate[] = [
     defendantNarrative:
       "Neighbor says the tree appeared healthy, the storm was unusually severe (act of God), and the plaintiff never formally asked in writing for the tree's removal.",
     amountClaimed: 4200,
-    citations: ["Wyo. Stat. § 1-1-109", "W.R.E. 401"],
+    citations: ["W.S. 1-1-109"],
     tags: ["neighbor", "tree", "property damage", "shed", "storm", "negligence"],
   },
   {
@@ -317,7 +318,7 @@ export const mockCaseTemplates: MockCaseTemplate[] = [
     defendantNarrative:
       "Neighbor says they were never consulted, didn't agree to the fence style or contractor, and would have chosen a cheaper option.",
     amountClaimed: 1600,
-    citations: ["Wyo. Stat. § 11-28-103", "W.R.E. 401"],
+    citations: ["W.S. 1-21-201"],
     tags: ["neighbor", "fence", "boundary", "shared cost", "property line"],
   },
 
@@ -331,7 +332,7 @@ export const mockCaseTemplates: MockCaseTemplate[] = [
     defendantNarrative:
       "Dog owner says the jogger startled the dog by running too close, the dog has no bite history, and the injuries were minor scratches, not a serious bite.",
     amountClaimed: 1800,
-    citations: ["Wyo. Stat. § 1-1-109", "Wyo. Stat. § 11-31-301"],
+    citations: ["W.S. 1-1-109"],
     tags: ["pet", "dog bite", "injury", "medical bills", "off-leash", "animal"],
   },
   {
@@ -343,7 +344,7 @@ export const mockCaseTemplates: MockCaseTemplate[] = [
     defendantNarrative:
       "Kennel owner says the latch was in working order, another guest may have left the gate open, and the contract limits liability to the boarding fee.",
     amountClaimed: 2500,
-    citations: ["Wyo. Stat. § 1-1-109", "W.R.E. 401"],
+    citations: ["W.S. 1-21-201"],
     tags: ["pet", "dog", "boarding", "kennel", "escape", "negligence", "vet bills"],
   },
 ];
@@ -381,33 +382,30 @@ export function runMockSimulation(input: SimulationInput): SimulationOutput {
       ? roundToCurrency(input.amountClaimed * likelyAwardFraction)
       : 0;
 
+  const mockLabel =
+    "Mock result: the narratives, uploads, and timeline were not analyzed. ";
   const rationale =
-    winner === "plaintiff"
-      ? `The court finds the plaintiff's record more credible under the ${input.judgeId.replace(
-          "_",
-          " "
-        )} approach, with stronger support from submitted evidence.`
-      : `The court finds the defendant's position more persuasive due to gaps in the plaintiff's proof under the ${input.judgeId.replace(
-          "_",
-          " "
-        )} approach.`;
+    mockLabel +
+    (winner === "plaintiff"
+      ? `The fixed practice score favored the plaintiff under the ${input.judgeId.split("_").join(" ")} setting.`
+      : `The fixed practice score favored the defendant under the ${input.judgeId.split("_").join(" ")} setting.`);
 
   const template = mockCaseTemplates.find((item) => item.id === input.templateId);
-  const conclusionsOfLaw = (template?.citations ?? ["Wyo. Stat. (placeholder)"]).map(
+  const conclusionsOfLaw = (template?.citations ?? ["W.S. 1-21-201"]).map(
     (citation) => ({
-      text: "The cited authority supports the applied burden and remedy framework.",
+      text: "Research label for a backend run. Mock mode does not apply this authority.",
       citation,
     })
   );
   const findingsOfFact = [
-    `The court considered both narratives and weighted the ${input.judgeId.replace("_", " ")} judicial approach.`,
-    "The evidentiary record was assessed for internal consistency and documentary support.",
-    `The claimed amount of $${input.amountClaimed} was reviewed against probable proof of damages.`,
+    "Mock mode did not read either narrative.",
+    "The score uses the practice weights passed into the simulator, not the evidence step.",
+    `The claimed amount of $${input.amountClaimed} was used only to scale a practice award.`,
   ];
   const judgmentText =
     winner === "plaintiff"
-      ? `Judgment is entered for the plaintiff in the amount of $${awardAmount}.`
-      : "Judgment is entered for the defendant. No monetary award is granted.";
+      ? `Mock result for the plaintiff in the amount of $${awardAmount}. This is not a court judgment.`
+      : "Mock result for the defendant. No monetary award. This is not a court judgment.";
   const evidenceScoreSummary = [
     {
       item: "Plaintiff evidentiary support",

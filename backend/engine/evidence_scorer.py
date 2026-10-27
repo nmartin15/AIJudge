@@ -60,6 +60,8 @@ async def score_evidence(
     classification: dict,
     claim_elements: dict,
     archetype_modifiers: dict | None = None,
+    submitted_evidence: list[dict] | None = None,
+    timeline_events: list[dict] | None = None,
 ) -> dict:
     """
     Score evidence for each claim element.
@@ -89,6 +91,11 @@ async def score_evidence(
 
     if archetype_modifiers:
         context += f"\n\nJUDGE PREFERENCES:\n{json.dumps(archetype_modifiers, indent=2)}"
+
+    if submitted_evidence:
+        context += "\n\nEVIDENCE THE PARTIES FILED:\n" + json.dumps(submitted_evidence, indent=2)
+    if timeline_events:
+        context += "\n\nTIMELINE THE PARTIES FILED:\n" + json.dumps(timeline_events, indent=2)
 
     response = await call_anthropic(
         system=EVIDENCE_SCORING_PROMPT,

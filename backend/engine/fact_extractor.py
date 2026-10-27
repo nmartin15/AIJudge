@@ -10,10 +10,15 @@ import json
 from engine.llm_client import call_openai
 
 FACT_EXTRACTION_PROMPT = """\
-You are a legal fact extractor for Wyoming small claims court cases.
+You are a legal fact extractor for a Wyoming small claims rehearsal.
 
-Given the plaintiff's and defendant's narratives, extract structured facts.
-Be precise and factual. Do not infer facts not stated by either party.
+Given the plaintiff's and defendant's narratives, plus any evidence list or
+timeline they filed, extract structured facts. Be precise. Do not infer facts
+that neither the narratives nor the filed records state. Treat filed evidence
+as a description of what the party says they have, not as proof the document
+is authentic. A pipeline_excerpt is text copied from an uploaded text or Word
+file. A note that a file was attached and not transcribed means those bytes
+were not read.
 
 Return valid JSON with this exact structure:
 {
@@ -75,6 +80,8 @@ async def extract_facts(
     plaintiff_name: str = "Plaintiff",
     defendant_name: str = "Defendant",
     claimed_amount: float | None = None,
+    submitted_evidence: list[dict] | None = None,
+    timeline_events: list[dict] | None = None,
 ) -> dict:
     """
     Extract structured facts from both parties' narratives.
@@ -88,6 +95,10 @@ async def extract_facts(
     )
     if claimed_amount is not None:
         user_message += f"\n\nCLAIMED AMOUNT: ${claimed_amount:,.2f}"
+    if submitted_evidence:
+        user_message += "\n\nEVIDENCE THE PARTIES FILED:\n" + json.dumps(submitted_evidence, indent=2)
+    if timeline_events:
+        user_message += "\n\nTIMELINE THE PARTIES FILED:\n" + json.dumps(timeline_events, indent=2)
 
     response = await call_openai(
         messages=[

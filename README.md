@@ -4,13 +4,19 @@ AI-powered small claims court simulation for Wyoming jurisdiction. An educationa
 
 **This is a simulation for educational purposes only. It does not constitute legal advice.**
 
+One person supplies both sides, so the hearing rehearses that person's theory of the case. It does not predict what the other party will say, and the result is not a judgment of the Wyoming circuit court.
+
+The $6,000 cap and the informal hearing follow the small-claims track. Legal text used by the pipeline is a summary of the official statutes and the Rules and Forms Governing Small Claims Cases. Those summaries are in `backend/corpus/sources/wyoming_corpus.json` and in the static rules the pipeline attaches to every case. After editing the corpus file, re-ingest it from the admin corpus tools so stored embeddings match. The static rules apply on the next judgment without a re-ingest.
+
+Mock mode is the default, so the screens work without API keys. It does not score the stories or name a winner. A banner says so, and a failed backend judgment is shown as an error rather than a substitute result. Set `NEXT_PUBLIC_SIMULATION_MODE=backend` to run the pipeline. The health check reports `corpus_current` when stored chunks still contain the current statute-summary marker. If that flag is false, re-ingest before a live demo. Templates for landlord-tenant, wages, neighbor, and pet disputes are stored under the six case types the database accepts. The classifier still reads the story. Text, CSV, email, and Word uploads are excerpted into the pipeline. PDF and image files are marked as attached and not transcribed.
+
 ## Features
 
 - Multi-step case intake with both plaintiff and defendant perspectives
 - **20 example case templates** spanning 10 dispute categories (security deposit, landlord-tenant, property damage, contract, consumer, loan/debt, wages/services, neighbor, pet/animal) with searchable combobox and keyword filtering
 - Four distinct judge archetypes with different judicial temperaments
 - Interactive hearing simulation with AI judge questions
-- Formal judgment documents with findings of fact, conclusions of law, and citations
+- A rehearsal document with findings, the authorities actually supplied to the model, and a plain-language explanation. It is not a circuit-court order
 - Evidence scoring and reasoning transparency
 - Multi-judge comparison to see how different temperaments affect outcomes
 - **Wyoming state-branded UI** — navy blue, gold, and warm cream color palette derived from the Wyoming state flag and symbols
@@ -139,7 +145,7 @@ docker-compose.yml Docker orchestration (Postgres + Backend + Frontend)
 
 ## Testing
 
-The project has **326 automated tests** (137 backend + 189 frontend) covering API endpoints, the judicial reasoning pipeline, UI components, custom hooks, and error handling.
+The project has **334 automated tests** (143 backend, including 1 skipped, and 191 frontend) covering API endpoints, the judicial reasoning pipeline, UI components, custom hooks, and error handling.
 
 ### Running Tests
 
@@ -154,7 +160,7 @@ cd frontend
 npm test
 ```
 
-### Backend Tests (137 tests across 12 files)
+### Backend Tests (138 tests across 12 files)
 
 | Area | File | What it covers |
 |------|------|----------------|
@@ -166,7 +172,7 @@ npm test
 | Security | `test_crypto.py`, `test_file_download_security.py`, `test_upload_validation.py` | Fernet encryption, file download auth, upload size/type checks |
 | Rate limiting | `test_rate_limiting.py` | Per-session rate limits on judgment, corpus, and admin endpoints |
 
-### Frontend Tests (189 tests across 20 files)
+### Frontend Tests (190 tests across 20 files)
 
 | Area | Files | What it covers |
 |------|-------|----------------|

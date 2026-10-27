@@ -158,6 +158,7 @@ describe("Home page integration flows", () => {
    * then enters the hearing phase and starts the hearing.
    */
   async function navigateToHearing(): Promise<void> {
+    fireEvent.click(screen.getByRole("button", { name: /skip screening/i }));
     // Step 0 → 1: Click "Continue" (non-blocking save fires in background)
     fireEvent.click(screen.getByRole("button", { name: /^continue$/i }));
     await waitFor(() => expect(mockApi.createCase).toHaveBeenCalledTimes(1));

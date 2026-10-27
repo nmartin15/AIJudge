@@ -34,6 +34,11 @@ function toCurrency(value: number): string {
   }).format(value);
 }
 
+function confidenceLabel(value: number | null): string | null {
+  if (value == null || Number.isNaN(value)) return null;
+  return `${Math.round(value * 100)}%`;
+}
+
 function buildJudgmentDocument(result: SimulationOutput): string {
   const findings = result.findingsOfFact
     .map((item, i) => `${i + 1}. ${item}`)
@@ -182,6 +187,31 @@ export function JudgmentView({
     URL.revokeObjectURL(url);
   }
 
+  if (!isRunning && result.decided === false) {
+    return (
+      <div className="animate-fade-in mx-auto max-w-2xl space-y-6 rounded-2xl border border-amber-200 bg-amber-50 p-6 text-center dark:border-amber-900 dark:bg-amber-950/20">
+        <p className="text-xs font-semibold uppercase tracking-widest text-amber-700 dark:text-amber-400">
+          No decision entered
+        </p>
+        <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+          This mode does not pick a winner
+        </h1>
+        <p className="text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
+          {warning ??
+            result.rationale ??
+            "The rehearsal did not score the stories."}
+        </p>
+        <button
+          type="button"
+          className="rounded-lg border border-zinc-300 bg-white px-6 py-2.5 text-sm font-semibold transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+          onClick={onStartOver}
+        >
+          Start a new case
+        </button>
+      </div>
+    );
+  }
+
   if (isRunning) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
@@ -241,13 +271,17 @@ export function JudgmentView({
               {toCurrency(result.awardAmount)}
             </p>
           </div>
-          <div className="h-8 w-px bg-zinc-200 dark:bg-zinc-700" />
-          <div>
-            <p className="text-xs text-zinc-400">Confidence</p>
-            <p className="mt-1 text-xl font-bold text-zinc-900 sm:text-2xl dark:text-zinc-100">
-              {Math.round(result.confidence * 100)}%
-            </p>
-          </div>
+          {confidenceLabel(result.confidence) && (
+            <>
+              <div className="h-8 w-px bg-zinc-200 dark:bg-zinc-700" />
+              <div>
+                <p className="text-xs text-zinc-400">Confidence</p>
+                <p className="mt-1 text-xl font-bold text-zinc-900 sm:text-2xl dark:text-zinc-100">
+                  {confidenceLabel(result.confidence)}
+                </p>
+              </div>
+            </>
+          )}
         </div>
 
         {warning && (
@@ -793,7 +827,7 @@ export function JudgmentView({
                           <div>
                             <p className="text-xs text-zinc-400">Confidence</p>
                             <p className="font-semibold text-zinc-900 dark:text-zinc-100">
-                              {Math.round(entry.output.confidence * 100)}%
+                              {confidenceLabel(entry.output.confidence) ?? "—"}
                             </p>
                           </div>
                         </div>
@@ -863,7 +897,7 @@ export function JudgmentView({
                                 {toCurrency(entry.output.awardAmount)}
                               </td>
                               <td className="px-3 py-3">
-                                {Math.round(entry.output.confidence * 100)}%
+                                {confidenceLabel(entry.output.confidence) ?? "—"}
                               </td>
                             </tr>
                           );

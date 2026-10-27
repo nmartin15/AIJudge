@@ -845,6 +845,72 @@ class TestPipelineOrchestrator:
                 defendant_narrative="Story.",
             )
 
+    @pytest.mark.asyncio
+    @patch("engine.pipeline.generate_advisory", new_callable=AsyncMock)
+    @patch("engine.pipeline.generate_decision", new_callable=AsyncMock)
+    @patch("engine.pipeline.generate_reasoning", new_callable=AsyncMock)
+    @patch("engine.pipeline.score_evidence", new_callable=AsyncMock)
+    @patch("engine.pipeline.get_applicable_rules", new_callable=AsyncMock)
+    @patch("engine.pipeline.classify_issues", new_callable=AsyncMock)
+    @patch("engine.pipeline.extract_facts", new_callable=AsyncMock)
+    async def test_pipeline_forwards_filed_records(
+        self,
+        mock_extract,
+        mock_classify,
+        mock_rules,
+        mock_score,
+        mock_reasoning,
+        mock_decision,
+        mock_advisory,
+    ):
+        from engine.pipeline import run_pipeline
+
+        mock_extract.return_value = {
+            "facts": SAMPLE_FACTS,
+            "llm_metadata": {**MOCK_LLM_METADATA, "pipeline_step": "fact_extraction"},
+        }
+        mock_classify.return_value = {
+            "classification": SAMPLE_CLASSIFICATION,
+            "llm_metadata": {**MOCK_LLM_METADATA, "pipeline_step": "issue_classification"},
+        }
+        mock_rules.return_value = {
+            "static_rules": {},
+            "claim_elements": {"elements": [], "damages_measure": ""},
+            "retrieved_corpus": [],
+            "case_type": "security_deposit",
+        }
+        mock_score.return_value = {
+            "scores": SAMPLE_SCORES,
+            "llm_metadata": {**MOCK_LLM_METADATA, "pipeline_step": "evidence_scoring"},
+        }
+        mock_reasoning.return_value = {
+            "reasoning": SAMPLE_REASONING,
+            "llm_metadata": {**MOCK_LLM_METADATA, "pipeline_step": "judicial_reasoning"},
+        }
+        mock_decision.return_value = {
+            "decision": SAMPLE_DECISION,
+            "llm_metadata": {**MOCK_LLM_METADATA, "pipeline_step": "decision_generation"},
+        }
+        mock_advisory.return_value = {
+            "advisory": SAMPLE_ADVISORY,
+            "llm_metadata": {**MOCK_LLM_METADATA, "pipeline_step": "case_advisory"},
+        }
+
+        evidence = [{"title": "Lease", "submitted_by": "plaintiff"}]
+        timeline = [{"description": "Move-out", "disputed": False}]
+        await run_pipeline(
+            db=AsyncMock(),
+            plaintiff_narrative="Deposit withheld.",
+            defendant_narrative="Damage at move-out.",
+            submitted_evidence=evidence,
+            timeline_events=timeline,
+        )
+
+        assert mock_extract.call_args.kwargs["submitted_evidence"] == evidence
+        assert mock_extract.call_args.kwargs["timeline_events"] == timeline
+        assert mock_score.call_args.kwargs["submitted_evidence"] == evidence
+        assert mock_reasoning.call_args.kwargs["timeline_events"] == timeline
+
 
 # ═══════════════════════════════════════════════════════════════════════
 # Archetypes

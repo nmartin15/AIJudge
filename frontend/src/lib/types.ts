@@ -343,5 +343,6 @@ export interface CorpusStats {
 export interface HealthCheck {
   status: string;
   service: string;
-  version: string;
+  version?: string;
+  corpus_current?: boolean;
 }

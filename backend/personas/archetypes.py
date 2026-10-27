@@ -29,7 +29,7 @@ ARCHETYPES: dict[str, dict[str, Any]] = {
             "- Follow the elements of each cause of action precisely\n"
             "- Are skeptical of round-number damages without supporting documentation\n"
             "- Value precision in dates, amounts, and contract terms\n"
-            "- Speak formally and reference statutes by number\n"
+            "- Speak formally. Cite a statute or rule only when the legal framework supplied it\n"
             "- Do not award damages that are not proven with specificity"
         ),
         "evidence_modifiers": {

@@ -14,41 +14,75 @@ from corpus.retriever import get_relevant_rules
 STATIC_RULES = {
     "jurisdiction": {
         "amount_limit": 6000.00,
-        "court": "Wyoming Circuit Court — Small Claims Docket",
-        "statute": "W.S. 1-21-201",
-        "rule": "Amount in controversy must not exceed $6,000, exclusive of interest and costs.",
+        "court": "Wyoming Circuit Court, small claims track",
+        "rule": (
+            "W.S. 1-21-201 applies when the amount claimed, exclusive of costs, "
+            "does not exceed $6,000. Costs are outside the cap. Interest is not. "
+            "A civil claim above $6,000 and through $50,000 is still a circuit-court "
+            "case on the regular civil track under W.S. 5-9-128."
+        ),
+        "statute": "W.S. 1-21-201; W.S. 5-9-128",
     },
     "burden_of_proof": {
         "standard": "Preponderance of the evidence",
-        "description": "More likely than not (greater than 50%). The plaintiff bears the burden.",
-        "statute": "W.S. 1-21-204(b)",
+        "description": (
+            "The plaintiff must show the claim is more likely than not. "
+            "W.S. 1-21-204 sets the appearance date. It does not state the burden."
+        ),
+        "statute": "Small Claims Rule 6",
     },
     "evidence_rules": {
-        "formality": "Formal rules of evidence do not apply",
-        "standard": "Court may consider any evidence it deems reliable and relevant",
-        "preference": "Documentary evidence generally given more weight than oral testimony alone",
-        "statute": "W.S. 1-21-201(b)",
+        "formality": "Strict rules of evidence do not apply",
+        "standard": (
+            "The court excludes irrelevant, immaterial, or unduly repetitious evidence "
+            "and may receive evidence that reasonably prudent people rely on in their "
+            "serious affairs. Hearsay that is probative, trustworthy, and credible may be received."
+        ),
+        "statute": "Small Claims Rule 6",
     },
     "damages": {
-        "general": "Damages must be proven with reasonable certainty. Speculative damages not recoverable.",
-        "property": "Lesser of cost of repair or diminution in market value.",
-        "contract": "Benefit of the bargain — position plaintiff would be in had contract been performed.",
-        "statute": "W.S. 1-1-109",
+        "general": "The plaintiff must prove the dollars claimed. A round number without support is not proof of the amount.",
+        "comparative_fault": (
+            "W.S. 1-1-109 is comparative fault for injury to person or property. "
+            "Recovery is barred if the claimant's fault is more than 50 percent. "
+            "Otherwise damages are reduced by the claimant's share of fault."
+        ),
+        "security_deposit": (
+            "W.S. 1-21-1208: the balance, prepaid rent, and a written itemization go out "
+            "within 30 days after termination or 15 days after the renter's new address, "
+            "whichever is later. Damage to the unit extends that period by 30 days. "
+            "The renter must give a payment address within 30 days of termination. "
+            "An unreasonable failure lets the renter recover the full deposit and court costs."
+        ),
+        "statute": "W.S. 1-1-109; W.S. 1-21-1208",
     },
     "service": {
-        "notice": "Defendant must be served at least 10 days before hearing.",
-        "methods": ["Personal service", "Certified mail return receipt", "Other authorized means"],
-        "statute": "W.S. 1-21-203",
+        "notice": (
+            "The appearance date is not more than 20 days and not less than 12 days after service. "
+            "That window has applied to cases filed on or after July 1, 2021."
+        ),
+        "methods": [
+            "Service as otherwise provided by law",
+            "Certified mail to a defendant who resides in Wyoming, complete when the circuit judge receives the return receipt signed by the defendant or the defendant's agent",
+        ],
+        "statute": "W.S. 1-21-203; W.S. 1-21-204",
     },
-    "security_deposit": {
-        "return_period": "30 days after lease termination",
-        "requirement": "Itemized statement of deductions required",
-        "statute": "W.S. 1-21-1208",
+    "pleadings": {
+        "answer_required": False,
+        "description": (
+            "No answer or other responsive pleading is required. The hearing is informal, "
+            "and no pleading beyond the claim and notice is necessary. "
+            "The small-claims article does not create a separate counterclaim form."
+        ),
+        "statute": "W.S. 1-21-205; Small Claims Rule 5",
     },
-    "counterclaims": {
-        "allowed": True,
-        "limit": "Must not exceed $6,000 jurisdictional limit",
-        "statute": "W.S. 1-21-201(d)",
+    "appeal": {
+        "deadline": "Notice of appeal is filed within 30 days after entry of the appealable order.",
+        "scope": (
+            "The district court reviews questions of law. "
+            "The appeal is not a new trial and does not review whether the evidence was sufficient."
+        ),
+        "statute": "Small Claims Rule 7; W.R.A.P. 2.01",
     },
 }
 
@@ -79,10 +113,11 @@ CLAIM_ELEMENTS = {
         "elements": [
             "Tenant paid a security deposit",
             "Lease terminated and tenant vacated the property",
-            "Landlord failed to return deposit within 30 days OR failed to provide itemized deductions",
-            "Deductions (if any) were unreasonable or unsupported",
+            "Owner missed the W.S. 1-21-1208 deadline: 30 days after termination or 15 days after the renter's new address, whichever is later, plus 30 days if the unit was damaged",
+            "Renter gave a payment address within 30 days of termination, or the owner already had it",
+            "Deductions were unsupported, or the owner gave no written itemization",
         ],
-        "damages_measure": "Amount of deposit wrongfully withheld",
+        "damages_measure": "Full deposit and court costs if the failure was unreasonable; otherwise the amount wrongfully withheld",
     },
     "loan_debt": {
         "name": "Money Owed (Debt/Loan)",

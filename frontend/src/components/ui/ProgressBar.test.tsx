@@ -31,7 +31,7 @@ describe("ProgressBar", () => {
       <ProgressBar steps={STEPS} currentStep={1} />
     );
     // Step 2 (index 1) should be active
-    const stepCircles = container.querySelectorAll("ol li div div");
+    const stepCircles = container.querySelectorAll("ol li button");
     // The second circle (index 1) should contain "2"
     expect(stepCircles[1]?.textContent).toBe("2");
   });

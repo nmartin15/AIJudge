@@ -3,7 +3,6 @@ import type { JudgeTemperament, SimulationOutput } from "@/lib/mockSimulation";
 import {
   SIMULATION_MODE,
   checkBackendCapabilities,
-  executeSimulation,
   mapJudgmentToSimulationOutput,
   type BackendReadinessStatus,
 } from "@/lib/simulationService";
@@ -71,6 +70,7 @@ export function useSimulation({
   const [backendDetail, setBackendDetail] = useState(
     "Checking backend capabilities...",
   );
+  const [corpusCurrent, setCorpusCurrent] = useState<boolean | null>(null);
   const [isCheckingBackend, setIsCheckingBackend] = useState(true);
   const [lastCheckedAt, setLastCheckedAt] = useState<string | null>(null);
 
@@ -79,6 +79,7 @@ export function useSimulation({
     const readiness = await checkBackendCapabilities();
     setBackendStatus(readiness.status);
     setBackendDetail(readiness.detail);
+    setCorpusCurrent(readiness.corpusCurrent);
     setLastCheckedAt(new Date().toLocaleTimeString());
     setIsCheckingBackend(false);
   }, []);
@@ -91,6 +92,7 @@ export function useSimulation({
       if (!mounted) return;
       setBackendStatus(readiness.status);
       setBackendDetail(readiness.detail);
+      setCorpusCurrent(readiness.corpusCurrent);
       setLastCheckedAt(new Date().toLocaleTimeString());
       setIsCheckingBackend(false);
     }
@@ -150,21 +152,24 @@ export function useSimulation({
           throw error;
         }
       }
-      const run = await executeSimulation({
-        templateId: selectedTemplateId,
-        plaintiffNarrative,
-        defendantNarrative,
-        amountClaimed,
-        plaintiffEvidenceStrength: 72,
-        defendantEvidenceStrength: 54,
-        judgeId,
+      const notice =
+        "Mock mode does not decide the case or read the narratives. Set NEXT_PUBLIC_SIMULATION_MODE=backend to run the pipeline.";
+      setResult({
+        winner: "plaintiff",
+        awardAmount: 0,
+        confidence: null,
+        decided: false,
+        rationale: notice,
+        citedAuthorities: [],
+        findingsOfFact: [],
+        conclusionsOfLaw: [],
+        judgmentText: "No simulated order was entered.",
+        evidenceScoreSummary: [],
       });
-      setResult(run.output);
-      setResultMode(run.modeUsed);
-      setWarning(run.warning ?? null);
+      setResultMode("mock");
+      setWarning(notice);
       setJudgmentMetadata(null);
-      clearPersistedForm();
-      addToast("Judgment generated", "success");
+      addToast(notice, "info");
     } catch (error) {
       addToast(normalizeError(error), "error");
     } finally {
@@ -187,24 +192,9 @@ export function useSimulation({
     ];
     try {
       if (SIMULATION_MODE === "mock") {
-        const baseInput = {
-          templateId: selectedTemplateId,
-          plaintiffNarrative,
-          defendantNarrative,
-          amountClaimed,
-          plaintiffEvidenceStrength: 72,
-          defendantEvidenceStrength: 54,
-        };
-        const runs = await Promise.all(
-          judgeIds.map(async (judge) => {
-            const run = await executeSimulation(
-              { ...baseInput, judgeId: judge },
-              "mock",
-            );
-            return { judgeId: judge, output: run.output };
-          }),
+        setComparisonError(
+          "A four-judge comparison runs the pipeline. Mock mode does not score the case.",
         );
-        setComparisonResults(runs);
         return;
       }
 
@@ -281,6 +271,7 @@ export function useSimulation({
     // Backend status
     backendStatus,
     backendDetail,
+    corpusCurrent,
     isCheckingBackend,
     lastCheckedAt,
     checkCapabilities,

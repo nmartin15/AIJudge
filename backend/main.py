@@ -20,6 +20,7 @@ from api.error_handlers import (
     validation_exception_handler,
 )
 from config import get_settings
+from corpus.ingest import CORPUS_TEXT_MARKER
 from db.connection import engine, AsyncSessionLocal, get_pool_status
 import db.events  # noqa: F401 — registers SQLAlchemy event listeners
 from logging_config import setup_logging
@@ -185,9 +186,26 @@ async def health_check(detail: bool = False):
         pass
 
     status = "healthy" if db_ok else "degraded"
+    corpus_current: bool | None = None
+    if db_ok:
+        try:
+            async with engine.connect() as conn:
+                counted = await conn.execute(
+                    sa.text(
+                        "SELECT COUNT(*) FROM corpus_chunks "
+                        "WHERE content LIKE :marker"
+                    ),
+                    {"marker": f"%{CORPUS_TEXT_MARKER}%"},
+                )
+                corpus_current = int(counted.scalar() or 0) > 0
+        except Exception:
+            logger.debug("Corpus currency check failed", exc_info=True)
+            corpus_current = None
+
     response: dict[str, object] = {
         "status": status,
         "service": settings.app_name,
+        "corpus_current": corpus_current,
     }
 
     # Only expose internal diagnostics when explicitly requested

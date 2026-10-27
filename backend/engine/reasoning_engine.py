@@ -28,7 +28,9 @@ Important Wyoming-specific considerations:
 - Formal rules of evidence do not apply; consider all reliable evidence
 - The plaintiff bears the burden of proof on each element
 - Damages must be proven with reasonable certainty
-- Maximum recovery is $6,000 exclusive of interest and costs
+- Maximum recovery on this track is $6,000 exclusive of costs. Do not add interest back into the cap
+- Cite a statute or rule only when that authority is in the supplied framework. Do not invent subsection numbers
+- An appeal is questions of law within 30 days. It is not a new trial
 
 Return valid JSON with this exact structure:
 {{
@@ -73,6 +75,8 @@ async def generate_reasoning(
     evidence_scores: dict,
     archetype: dict,
     hearing_transcript: list[dict] | None = None,
+    submitted_evidence: list[dict] | None = None,
+    timeline_events: list[dict] | None = None,
 ) -> dict:
     """
     Generate the judicial reasoning chain.
@@ -111,7 +115,15 @@ async def generate_reasoning(
                 "claim_elements": applicable_rules.get("claim_elements", {}),
                 "key_static_rules": {
                     k: applicable_rules["static_rules"][k]
-                    for k in ["burden_of_proof", "evidence_rules", "damages"]
+                    for k in [
+                        "jurisdiction",
+                        "burden_of_proof",
+                        "evidence_rules",
+                        "damages",
+                        "service",
+                        "pleadings",
+                        "appeal",
+                    ]
                     if k in applicable_rules.get("static_rules", {})
                 },
             },
@@ -124,7 +136,7 @@ async def generate_reasoning(
     for chunk in applicable_rules.get("retrieved_corpus", []):
         context_parts.append(
             f"  [{chunk['source_type'].upper()}] {chunk.get('section_number', '')} — "
-            f"{chunk['source_title']}\n  {chunk['content'][:500]}"
+            f"{chunk['source_title']}\n  {chunk['content'][:2000]}"
         )
 
     context_parts.extend(
@@ -134,6 +146,12 @@ async def generate_reasoning(
             json.dumps(evidence_scores, indent=2),
         ]
     )
+
+    if submitted_evidence:
+        context_parts.extend(["", "EVIDENCE THE PARTIES FILED:", json.dumps(submitted_evidence, indent=2)])
+
+    if timeline_events:
+        context_parts.extend(["", "TIMELINE THE PARTIES FILED:", json.dumps(timeline_events, indent=2)])
 
     if hearing_transcript:
         context_parts.extend(

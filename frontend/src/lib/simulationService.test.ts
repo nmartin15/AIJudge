@@ -29,6 +29,7 @@ vi.mock("@/lib/api", () => mockApi);
 import {
   checkBackendCapabilities,
   executeSimulation,
+  toStoredCaseType,
 } from "@/lib/simulationService";
 import type { SimulationInput } from "@/lib/mockSimulation";
 
@@ -50,7 +51,9 @@ describe("executeSimulation", () => {
   it("uses mock path when mode is mock", async () => {
     const result = await executeSimulation(sampleInput, "mock");
     expect(result.modeUsed).toBe("mock");
-    expect(result.output.winner).toBeDefined();
+    expect(result.output.decided).toBe(false);
+    expect(result.output.confidence).toBeNull();
+    expect(result.warning).toContain("does not decide");
     expect(mockApi.createCase).not.toHaveBeenCalled();
   });
 
@@ -73,17 +76,26 @@ describe("executeSimulation", () => {
     expect(result.output.citedAuthorities).toEqual(["Wyo. Stat. 1-1-109"]);
   });
 
-  it("falls back to mock output when backend mode fails", async () => {
+  it("rejects when backend mode fails instead of inventing a result", async () => {
     mockApi.getOrCreateSession.mockResolvedValue("session-1");
     mockApi.createCase.mockRejectedValue(
       new mockApi.ApiClientError("timed out", { code: "timeout" })
     );
 
-    const result = await executeSimulation(sampleInput, "backend");
+    await expect(executeSimulation(sampleInput, "backend")).rejects.toThrow(
+      /timed out/i,
+    );
+    expect(mockApi.generateJudgment).not.toHaveBeenCalled();
+  });
+});
 
-    expect(result.modeUsed).toBe("mock");
-    expect(result.warning).toContain("Backend timed out");
-    expect(result.output.winner).toBeDefined();
+describe("toStoredCaseType", () => {
+  it("maps template labels the database enum does not store", () => {
+    expect(toStoredCaseType("security_deposit")).toBe("security_deposit");
+    expect(toStoredCaseType("wages")).toBe("contract");
+    expect(toStoredCaseType("neighbor")).toBe("property_damage");
+    expect(toStoredCaseType("landlord_tenant")).toBe("other");
+    expect(toStoredCaseType("pet")).toBe("other");
   });
 });
 
@@ -105,6 +117,19 @@ describe("checkBackendCapabilities", () => {
     const readiness = await checkBackendCapabilities("backend");
     expect(readiness.status).toBe("ready");
     expect(readiness.detail).toContain("2 judge archetypes");
+    expect(readiness.corpusCurrent).toBeNull();
+  });
+
+  it("reports a stale corpus when health says the summaries are missing", async () => {
+    mockApi.healthCheck.mockResolvedValue({
+      status: "healthy",
+      corpus_current: false,
+    });
+    mockApi.getArchetypes.mockResolvedValue([{ id: "strict" }]);
+
+    const readiness = await checkBackendCapabilities("backend");
+    expect(readiness.corpusCurrent).toBe(false);
+    expect(readiness.detail).toContain("Re-ingest");
   });
 
   it("returns degraded when health is up but archetypes fail", async () => {

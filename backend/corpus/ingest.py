@@ -2,7 +2,8 @@
 Wyoming Small Claims Corpus Ingestion Pipeline.
 
 Loads, chunks, embeds, and stores Wyoming legal materials for RAG retrieval.
-Sources include statutes, court rules, bench guides, and self-help materials.
+Sources are summaries of the official statutes and the Rules and Forms
+Governing Small Claims Cases, plus application notes for this simulation.
 """
 
 import json
@@ -15,6 +16,8 @@ from engine.llm_client import generate_embedding
 settings = get_settings()
 
 SOURCES_DIR = Path(__file__).parent / "sources"
+CORPUS_REVISION = "2026-10-summaries"
+CORPUS_TEXT_MARKER = "Summary of the official section, not a quotation"
 
 
 def _load_corpus_data() -> dict:
@@ -54,6 +57,7 @@ async def embed_and_prepare_chunks() -> list[dict]:
                 "metadata_": {
                     "source_type": chunk["source_type"],
                     "topic": chunk.get("topic"),
+                    "corpus_revision": CORPUS_REVISION,
                 },
             }
         )

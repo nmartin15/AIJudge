@@ -28,6 +28,7 @@ from services.judgment_helpers import (
     derive_winner,
     extract_hearing_transcript,
     get_case_and_hearing_context,
+    serialize_case_records,
 )
 
 logger = logging.getLogger(__name__)
@@ -103,6 +104,7 @@ async def run_or_reuse_comparison(
 
     plaintiff_name, defendant_name = extract_party_names(case)
     hearing_transcript = extract_hearing_transcript(hearing)
+    submitted_evidence, timeline_events = serialize_case_records(case)
     comp_run = ComparisonRun(
         case_id=case_id,
         run_key=run_key,
@@ -125,6 +127,8 @@ async def run_or_reuse_comparison(
                 claimed_amount=claimed,
                 archetype_id=arch_id,
                 hearing_transcript=hearing_transcript,
+                submitted_evidence=submitted_evidence,
+                timeline_events=timeline_events,
             )
 
     pipeline_results = await asyncio.gather(

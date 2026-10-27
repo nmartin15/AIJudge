@@ -115,6 +115,7 @@ describe("Error path integration tests", () => {
    * Each step's validation requirements are satisfied before advancing.
    */
   async function navigateToStep(target: number): Promise<void> {
+    fireEvent.click(screen.getByRole("button", { name: /skip screening/i }));
     // Step 0 → 1: Click Continue (fires background createCase)
     if (target >= 1) {
       fireEvent.click(screen.getByRole("button", { name: /^continue$/i }));
@@ -338,6 +339,7 @@ describe("Error path integration tests", () => {
     );
 
     render(<Home />);
+    fireEvent.click(screen.getByRole("button", { name: /skip screening/i }));
     fireEvent.click(screen.getByRole("button", { name: /^continue$/i }));
 
     await waitFor(() => expect(mockApi.createCase).toHaveBeenCalledTimes(1));
@@ -458,6 +460,7 @@ describe("Error path integration tests", () => {
     );
 
     render(<Home />);
+    fireEvent.click(screen.getByRole("button", { name: /skip screening/i }));
     fireEvent.click(screen.getByRole("button", { name: /^continue$/i }));
 
     await waitFor(() =>

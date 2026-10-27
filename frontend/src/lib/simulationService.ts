@@ -7,12 +7,14 @@ import {
   healthCheck,
 } from "@/lib/api";
 import type { CaseAdvisory, CaseType, Judgment } from "@/lib/types";
+import { toStoredCaseType } from "@/lib/storedCaseType";
 import {
   mockCaseTemplates,
-  runMockSimulation,
   type SimulationInput,
   type SimulationOutput,
 } from "@/lib/mockSimulation";
+
+export { toStoredCaseType };
 
 export type SimulationMode = "mock" | "backend";
 
@@ -27,6 +29,7 @@ export type BackendReadinessStatus = "ready" | "degraded" | "offline";
 export interface BackendReadiness {
   status: BackendReadinessStatus;
   detail: string;
+  corpusCurrent: boolean | null;
 }
 
 function parseMode(value: string | undefined): SimulationMode {
@@ -37,15 +40,13 @@ export const SIMULATION_MODE = parseMode(process.env.NEXT_PUBLIC_SIMULATION_MODE
 
 function mapTemplateCaseType(templateId: string): CaseType | undefined {
   const template = mockCaseTemplates.find((item) => item.id === templateId);
-  return template?.caseType;
+  return toStoredCaseType(template?.caseType);
 }
 
 export function mapJudgmentToSimulationOutput(
   judgment: Partial<Judgment>,
-  templateId: string
+  _templateId: string
 ): SimulationOutput {
-  const fallbackCitations =
-    mockCaseTemplates.find((item) => item.id === templateId)?.citations ?? [];
   const conclusions: Array<{ text: string; citation: string }> = judgment.conclusions_of_law ?? [];
   const citedAuthorities: string[] = [
     ...new Set(
@@ -58,10 +59,9 @@ export function mapJudgmentToSimulationOutput(
   return {
     winner: judgment.in_favor_of ?? "defendant",
     awardAmount: judgment.awarded_amount ?? 0,
-    confidence: 0.75,
+    confidence: null,
     rationale: judgment.rationale || judgment.judgment_text || "No rationale returned.",
-    citedAuthorities:
-      citedAuthorities.length > 0 ? citedAuthorities : fallbackCitations,
+    citedAuthorities,
     findingsOfFact: judgment.findings_of_fact ?? [],
     conclusionsOfLaw: conclusions,
     judgmentText: judgment.judgment_text ?? "",
@@ -122,22 +122,27 @@ export async function checkBackendCapabilities(
   if (mode === "mock") {
     return {
       status: "ready",
-      detail: "Mock mode active. Backend checks are optional.",
+      detail: "Mock mode active. It does not decide a case.",
+      corpusCurrent: null,
     };
   }
 
+  let corpusCurrent: boolean | null = null;
   try {
     const health = await healthCheck();
+    corpusCurrent = health.corpus_current ?? null;
     if (health.status !== "healthy") {
       return {
         status: "degraded",
         detail: "Backend responded, but health status is not healthy.",
+        corpusCurrent,
       };
     }
   } catch (error) {
     return {
       status: "offline",
       detail: toUserFacingError(error),
+      corpusCurrent: null,
     };
   }
 
@@ -147,16 +152,23 @@ export async function checkBackendCapabilities(
       return {
         status: "degraded",
         detail: "Backend is healthy but returned no judge archetypes.",
+        corpusCurrent,
       };
     }
+    const stale =
+      corpusCurrent === false
+        ? " Stored legal corpus does not match the current summaries. Re-ingest before a live demo."
+        : "";
     return {
       status: "ready",
-      detail: `Backend ready with ${archetypes.length} judge archetypes.`,
+      detail: `Backend ready with ${archetypes.length} judge archetypes.${stale}`,
+      corpusCurrent,
     };
   } catch (error) {
     return {
       status: "degraded",
       detail: `Health is up, but archetype fetch failed: ${toUserFacingError(error)}`,
+      corpusCurrent,
     };
   }
 }
@@ -167,8 +179,23 @@ export async function executeSimulation(
 ): Promise<SimulationExecutionResult> {
   if (mode === "mock") {
     return {
-      output: runMockSimulation(input),
+      output: {
+        winner: "plaintiff",
+        awardAmount: 0,
+        confidence: null,
+        decided: false,
+        rationale:
+          "Mock mode does not decide the case or read the narratives. Use backend mode to run the pipeline.",
+        citedAuthorities: [],
+        findingsOfFact: [],
+        conclusionsOfLaw: [],
+        judgmentText:
+          "No simulated order. Mock mode does not score the stories.",
+        evidenceScoreSummary: [],
+      },
       modeUsed: "mock",
+      warning:
+        "Mock mode does not decide the case. Set NEXT_PUBLIC_SIMULATION_MODE=backend to run the pipeline.",
     };
   }
 
@@ -179,12 +206,6 @@ export async function executeSimulation(
       modeUsed: "backend",
     };
   } catch (error) {
-    return {
-      output: runMockSimulation(input),
-      modeUsed: "mock",
-      warning: `Backend simulation failed (${toUserFacingError(
-        error
-      )}). Showing mock result instead.`,
-    };
+    throw new Error(toUserFacingError(error));
   }
 }

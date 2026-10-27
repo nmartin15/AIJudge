@@ -15,7 +15,7 @@ Custom colors are defined as CSS variables and Tailwind theme tokens in `src/app
 
 ## Case Templates
 
-The app ships with **20 example case templates** across 10 dispute categories commonly seen in Wyoming small claims court:
+The app ships with **20 example case templates**. Security-deposit, property-damage, contract, consumer, and loan templates use those case types directly. Landlord-tenant, wages, neighbor, and pet templates are examples only; the client stores them as the six case types the API accepts.
 
 - Security Deposit, Landlord-Tenant, Property Damage, Contract, Consumer
 - Loan/Debt, Wages/Services, Neighbor, Pet/Animal, plus "Start from scratch"
@@ -35,7 +35,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 The UI simulation supports a runtime mode flag:
 
-- `NEXT_PUBLIC_SIMULATION_MODE=mock` (default): runs fully local mock scoring
+- `NEXT_PUBLIC_SIMULATION_MODE=mock` (default): screens work locally and do not decide a case
 - `NEXT_PUBLIC_SIMULATION_MODE=backend`: sends case + judgment requests to the FastAPI backend
 
 Copy `frontend/.env.local.example` to `frontend/.env.local` and adjust values as needed.
@@ -53,7 +53,7 @@ $env:NEXT_PUBLIC_SIMULATION_MODE="backend"
 npm run dev
 ```
 
-If backend mode fails at runtime, the UI falls back to mock results and shows a warning.
+If backend mode fails at runtime, the UI shows the error and does not substitute a mock result.
 
 ## Session Management
 

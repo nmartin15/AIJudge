@@ -25,6 +25,7 @@ from services.judgment_helpers import (
     derive_winner,
     extract_hearing_transcript,
     get_case_and_hearing_context,
+    serialize_case_records,
 )
 
 logger = logging.getLogger(__name__)
@@ -74,6 +75,7 @@ async def generate_judgment(
 
     plaintiff_name, defendant_name = extract_party_names(case)
     hearing_transcript = extract_hearing_transcript(hearing)
+    submitted_evidence, timeline_events = serialize_case_records(case)
 
     pipeline_result = await run_pipeline(
         db=db,
@@ -84,6 +86,8 @@ async def generate_judgment(
         claimed_amount=float(case.claimed_amount) if case.claimed_amount is not None else None,
         archetype_id=body.archetype_id,
         hearing_transcript=hearing_transcript,
+        submitted_evidence=submitted_evidence,
+        timeline_events=timeline_events,
     )
 
     judgment_data = pipeline_result["judgment"]

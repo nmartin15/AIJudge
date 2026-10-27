@@ -2,105 +2,147 @@
   "statutes": [
     {
       "source_type": "statute",
-      "source_title": "Wyoming Statutes Title 1, Chapter 21 - Small Claims",
+      "source_title": "Summary of W.S. 1-21-201",
       "section_number": "W.S. 1-21-201",
       "topic": "small_claims_jurisdiction",
-      "content": "W.S. 1-21-201. Small claims jurisdiction.\n\n(a) Each circuit court has a small claims docket and jurisdiction over civil actions where the amount in controversy does not exceed six thousand dollars ($6,000.00), exclusive of interest and costs.\n\n(b) Small claims actions are informal proceedings. The Wyoming Rules of Evidence and the Wyoming Rules of Civil Procedure do not apply except as specifically provided. The court may conduct the hearing in any manner it deems appropriate to determine the facts and to do justice between the parties.\n\n(c) Attorneys may appear and represent parties in small claims actions.\n\n(d) Counterclaims may be filed if they do not exceed the jurisdictional limit."
+      "content": "Summary of the official section, not a quotation of invented subsections. W.S. 1-21-201 applies to civil cases in circuit court when the amount claimed, exclusive of costs, does not exceed $6,000. The procedure for those cases is W.S. 1-21-201 through 1-21-205. The Department of Revenue may consolidate certain tax-collection claims under the same procedure, subject to dollar limits stated in the section. The statute does not exclude interest from the cap, and it does not create subsections on evidence rules, attorneys, or counterclaims."
     },
     {
       "source_type": "statute",
-      "source_title": "Wyoming Statutes Title 1, Chapter 21 - Small Claims",
+      "source_title": "Summary of W.S. 1-21-202",
       "section_number": "W.S. 1-21-202",
       "topic": "small_claims_filing",
-      "content": "W.S. 1-21-202. Commencement of action; filing fee.\n\n(a) A small claims action is commenced by filing a verified complaint with the clerk of the circuit court. The complaint shall contain a brief statement of the claim, the amount claimed, and the name and address of the defendant.\n\n(b) The filing fee for a small claims action is established by the supreme court. Filing fees are generally between $10 and $30 depending on the amount claimed.\n\n(c) The complaint form is provided by the clerk and is designed to be completed without the assistance of an attorney."
+      "content": "Summary of the official section. A case starts when the state, a governmental entity, a person, or an organization appears in circuit court and signs an affidavit. The affidavit recites the defendant's full address, the nature of the claim, the amount due, and that demand was made and payment refused. The remedy is cumulative, so a claimant may instead use another available procedure. A party may appear in person or through an authorized employee, with or without a lawyer. If a lawyer appears, the other side is entitled to a continuance to obtain a lawyer. The circuit judge dockets the case. The filing fee is set by Small Claims Rule 3 at $10, plus any sheriff or process-server charge. It is not a sliding fee."
     },
     {
       "source_type": "statute",
-      "source_title": "Wyoming Statutes Title 1, Chapter 21 - Small Claims",
+      "source_title": "Summary of W.S. 1-21-203",
       "section_number": "W.S. 1-21-203",
       "topic": "small_claims_service",
-      "content": "W.S. 1-21-203. Service of process.\n\n(a) The defendant shall be served with a copy of the complaint and a notice of the hearing date at least ten (10) days before the hearing.\n\n(b) Service may be made by:\n  (i) Personal service by the sheriff or any person over 18 years of age who is not a party to the action;\n  (ii) Certified mail, return receipt requested, to the defendant's last known address;\n  (iii) Any other means authorized by the Wyoming Rules of Civil Procedure.\n\n(c) If service cannot be completed, the court may authorize alternative methods of service."
+      "content": "Summary of the official section, as amended effective July 1, 2021. The court files the affidavit and has the summons served as otherwise provided by law. If the defendant resides in Wyoming, the court may serve by certified mail to the defendant's address in the state, return receipt requested. Service by that mail is complete when the circuit judge receives the receipt signed by the defendant or the defendant's agent. Venue also follows W.S. 1-5-104(b) and W.S. 1-5-105 through 1-5-109. Small Claims Rule 4, effective December 1, 2021, allows suit in the county where the defendant has an address or where the claim, or some part of it, arose. Rule 1 says these court rules supersede conflicting statutes."
     },
     {
       "source_type": "statute",
-      "source_title": "Wyoming Statutes Title 1, Chapter 21 - Small Claims",
+      "source_title": "Summary of W.S. 1-21-204",
       "section_number": "W.S. 1-21-204",
-      "topic": "small_claims_hearing",
-      "content": "W.S. 1-21-204. Hearing and judgment.\n\n(a) The hearing shall be held at the time and place stated in the notice. Both parties may present testimony, documents, and other evidence.\n\n(b) The court shall determine the facts based on a preponderance of the evidence standard. The plaintiff bears the burden of proof.\n\n(c) The judge may question witnesses, request additional evidence, and take any action necessary to determine the facts.\n\n(d) The court shall render judgment at the conclusion of the hearing or within a reasonable time thereafter.\n\n(e) Judgment may be entered for the plaintiff in the amount proved, for the defendant if the plaintiff fails to prove the claim, or for the defendant on a counterclaim.\n\n(f) Costs may be awarded to the prevailing party."
+      "topic": "small_claims_appearance",
+      "content": "Summary of the official section, as amended effective July 1, 2021. The appearance date in the summons is not more than 20 days and not less than 12 days after service. Before July 1, 2021 the window was 3 to 12 days. The Judicial Branch small-claims page still describes that older window. For cases filed on or after the effective date, the statute controls. When the judge sets the date, the plaintiff is told to appear with the books, papers, and witnesses needed to prove the claim. This section is the appearance rule. It is not a hearing-and-burden statute."
     },
     {
       "source_type": "statute",
-      "source_title": "Wyoming Statutes Title 1, Chapter 21 - Small Claims",
+      "source_title": "Summary of W.S. 1-21-205",
       "section_number": "W.S. 1-21-205",
-      "topic": "small_claims_appeal",
-      "content": "W.S. 1-21-205. Appeals.\n\n(a) Either party may appeal a small claims judgment to the district court within ten (10) days after the judgment is entered.\n\n(b) The appeal is a trial de novo — the case is retried from scratch in district court under the standard rules of civil procedure and evidence.\n\n(c) The appealing party must file a bond or pay a fee as required by the court."
+      "topic": "small_claims_hearing",
+      "content": "Summary of the official section. At the hearing the plaintiff, the defendant, and their witnesses may offer evidence. No formal pleading other than the claim and notice is necessary, and the hearing is informal. No prejudgment attachment or garnishment may issue. After judgment, execution, including garnishment in aid of execution, may issue as it does in other circuit-court cases. This section is not the appeal statute."
     },
     {
       "source_type": "statute",
-      "source_title": "Wyoming Statutes Title 1, Chapter 1 - Civil Procedure General",
+      "source_title": "Summary of W.S. 5-9-128",
+      "section_number": "W.S. 5-9-128",
+      "topic": "circuit_civil_jurisdiction",
+      "content": "Summary of circuit-court civil jurisdiction. Each circuit court has exclusive original civil jurisdiction for an action whose prayer does not exceed $50,000, exclusive of court costs, and for small claims under W.S. 1-21-201 through 1-21-205. Forcible entry and detainer, the eviction case, is a separate circuit proceeding under W.S. 1-21-1001 and following. A money claim over $6,000 and through $50,000 leaves the small-claims track and stays in circuit court. It does not go to district court merely because it exceeds $6,000."
+    },
+    {
+      "source_type": "statute",
+      "source_title": "Summary of W.S. 1-1-109",
       "section_number": "W.S. 1-1-109",
-      "topic": "damages_general",
-      "content": "W.S. 1-1-109. Measure of damages.\n\nIn civil actions, damages are measured by the actual loss sustained by the injured party. The plaintiff must prove damages with reasonable certainty. Speculative or conjectural damages are not recoverable.\n\nFor property damage: the measure is the lesser of the cost of repair or the diminution in market value.\n\nFor breach of contract: the measure is the benefit of the bargain — the amount that would put the plaintiff in the position they would have been in had the contract been performed."
+      "topic": "comparative_fault",
+      "content": "Summary of comparative fault. W.S. 1-1-109 applies to wrongful death and to injury to person or property caused by fault. Fault includes negligence and other conduct the section lists. Contributory fault does not bar recovery when the claimant's fault is not more than 50 percent of the total fault of all actors. Damages are then reduced in proportion to the claimant's fault. Each defendant is liable only for that defendant's proportion of the total fault. This section is not a general measure-of-damages statute for contract or deposit cases."
     },
     {
       "source_type": "statute",
-      "source_title": "Wyoming Statutes Title 1 - Venue",
-      "section_number": "W.S. 1-5-102",
+      "source_title": "Summary of W.S. 1-5-104(b)",
+      "section_number": "W.S. 1-5-104(b)",
       "topic": "venue",
-      "content": "W.S. 1-5-102. Venue for civil actions.\n\nCivil actions shall be brought in the county where:\n  (a) The defendant resides;\n  (b) The cause of action arose; or\n  (c) The property in dispute is located.\n\nIf no defendant resides in Wyoming, the action may be brought in any county where the plaintiff resides."
+      "content": "Summary of small-claims venue. W.S. 1-5-104(b) provides that a small-claims proceeding under W.S. 1-21-201 through 1-21-205 may be brought in the county where the cause of action, or some part of it, arose. W.S. 1-5-102 is a different rule, for property that lies in more than one county. It is not the general small-claims venue statute. Small Claims Rule 4 also allows suit where the defendant has an address."
+    },
+    {
+      "source_type": "statute",
+      "source_title": "Summary of W.S. 1-3-105",
+      "section_number": "W.S. 1-3-105",
+      "topic": "limitation_periods",
+      "content": "Summary of selected limitation periods. A written contract, agreement, or promise must be sued on within 10 years. A contract not in writing, and a liability created by statute other than a forfeiture or penalty, must be sued on within 8 years. An action for trespass to real property, for taking or injuring personal property, for fraud, or for an injury to the plaintiff's rights not arising on contract and not otherwise listed, must be brought within 4 years. Assault and battery, other than sexual assault, is 1 year. The period depends on the claim. There is no single 4-year period for both written and oral contracts."
+    },
+    {
+      "source_type": "statute",
+      "source_title": "Summary of W.S. 1-21-1208",
+      "section_number": "W.S. 1-21-1208",
+      "topic": "security_deposit",
+      "content": "Summary of the residential-deposit statute. After termination, the owner may apply a deposit to accrued rent, damage beyond reasonable wear and tear, cleaning back to the condition at the start of the rental, and other costs the contract allows. The balance, any prepaid rent, and a written itemization of deductions must be delivered or mailed without interest within 30 days after termination or within 15 days after the renter's new mailing address, whichever is later. If the unit is damaged, that period is extended by 30 days. The renter must, within 30 days of termination, tell the owner where payment and notice may be sent. A utilities deposit identified separately follows the different timeline in subsection (b). If the owner unreasonably fails to comply with subsection (a) or (b), the renter may recover the full deposit and court costs. If the owner prevails and the court finds the renter acted unreasonably in bringing the action, the owner may be awarded court costs. The statute does not add a treble penalty."
+    },
+    {
+      "source_type": "statute",
+      "source_title": "Summary of W.S. 1-21-1202 and 1-21-1203",
+      "section_number": "W.S. 1-21-1202",
+      "topic": "residential_habitability",
+      "content": "Summary of owner duties. W.S. 1-21-1202 requires an owner to maintain a residential rental unit in a safe and sanitary condition fit for human habitation, with operational electrical, heating, and plumbing and hot and cold running water, unless the parties agree otherwise in a signed writing or the unit is a seasonal rental not intended to have those amenities. The article does not apply to conditions that do not materially affect physical health or safety. W.S. 1-21-1203 requires a renter who is current on payments to give written notice of a health or safety condition and the repair requested. That notice is served by certified mail or in the manner specified by W.S. 1-21-1003. The owner then starts the repair or disputes the claim in writing. Withholding rent is not the remedy those sections describe. An order restoring possession is a forcible entry and detainer case under W.S. 1-21-1001, not a small-claims affidavit."
     }
   ],
   "court_rules": [
     {
       "source_type": "rule",
-      "source_title": "Wyoming Circuit Court Small Claims Procedures",
-      "section_number": "Rule SC-1",
+      "source_title": "Rules and Forms Governing Small Claims Cases",
+      "section_number": "Small Claims Rule 1",
       "topic": "small_claims_procedures",
-      "content": "Small Claims Procedures — General.\n\n1. Cases on the small claims docket are heard informally. The judge may ask questions of either party or any witness.\n2. Formal rules of evidence do not apply. The court may consider any evidence it deems reliable and relevant, including hearsay.\n3. Each party should bring all documents, photographs, and other evidence to the hearing. Originals are preferred.\n4. Witnesses may testify in person. Written statements may be considered but carry less weight than in-person testimony.\n5. The hearing is typically completed in one session, usually 15-30 minutes.\n6. The judge will explain the ruling and the reasons for it at the conclusion."
+      "content": "Summary of Rule 1. These rules govern procedure in small claims cases in circuit courts. Statutes governing small claims that conflict with these rules are superseded."
     },
     {
       "source_type": "rule",
-      "source_title": "Wyoming Circuit Court Small Claims Procedures",
-      "section_number": "Rule SC-2",
+      "source_title": "Rules and Forms Governing Small Claims Cases",
+      "section_number": "Small Claims Rule 3",
+      "topic": "filing_fee",
+      "content": "Summary of Rule 3. The fee for filing a small claims action in circuit court is $10. Service fees charged by a sheriff or process server are separate."
+    },
+    {
+      "source_type": "rule",
+      "source_title": "Rules and Forms Governing Small Claims Cases",
+      "section_number": "Small Claims Rule 4",
+      "topic": "venue",
+      "content": "Summary of Rule 4, effective December 1, 2021. A defendant in a small claims action may be sued in the county where the defendant has an address, or where the cause of action or some part of it arose."
+    },
+    {
+      "source_type": "rule",
+      "source_title": "Rules and Forms Governing Small Claims Cases",
+      "section_number": "Small Claims Rule 5",
+      "topic": "pleadings",
+      "content": "Summary of Rule 5. No answer and no responsive pleading is required in a small claims action."
+    },
+    {
+      "source_type": "rule",
+      "source_title": "Rules and Forms Governing Small Claims Cases",
+      "section_number": "Small Claims Rule 6",
       "topic": "evidence_standards",
-      "content": "Small Claims Evidence Standards.\n\n1. The standard of proof is preponderance of the evidence — more likely than not (greater than 50%).\n2. Documentary evidence (receipts, contracts, photographs, text messages, emails) is generally given more weight than oral testimony alone.\n3. The credibility of witnesses is determined by the judge based on:\n   - Consistency of testimony\n   - Corroboration by other evidence\n   - Demeanor and apparent truthfulness\n   - Bias or interest in the outcome\n4. The court may take judicial notice of commonly known facts.\n5. Photographs should be dated and their context explained."
+      "content": "Summary of Rule 6. Strict rules of evidence do not apply. Irrelevant, immaterial, or unduly repetitious evidence shall be excluded. The court may receive the type of evidence reasonably prudent persons rely on in the conduct of their serious affairs. Hearsay that is probative, trustworthy, and credible may be received. The Wyoming Rules of Evidence are not the governing evidence code on this docket."
     },
     {
       "source_type": "rule",
-      "source_title": "Wyoming Circuit Court Small Claims Procedures",
-      "section_number": "Rule SC-3",
-      "topic": "damages_calculation",
-      "content": "Small Claims Damages Calculation.\n\n1. The plaintiff must prove the amount of damages with reasonable certainty.\n2. For property damage claims:\n   - Repair estimates from qualified professionals\n   - Photographs of the damage (before and after if available)\n   - Fair market value documentation\n3. For contract claims:\n   - The contract itself (written or description of oral terms)\n   - Evidence of performance by the plaintiff\n   - Evidence of non-performance by the defendant\n   - Calculation of damages based on the contract terms\n4. For security deposit claims:\n   - Lease agreement\n   - Move-in/move-out inspection reports\n   - Photographs of condition\n   - Itemized deduction statement\n   - Wyoming law requires landlords to return deposits within 30 days or provide an itemized statement of deductions (W.S. 1-21-1208).\n5. The court will not award speculative damages."
+      "source_title": "Rules and Forms Governing Small Claims Cases",
+      "section_number": "Small Claims Rule 7",
+      "topic": "appeal",
+      "content": "Summary of Rule 7. An appeal of a small claims action to district court is processed under the Wyoming Rules of Appellate Procedure, and only on questions of law, not for a review of the sufficiency of the evidence. The rule cites Johnson v. Statewide Collections, Inc., 778 P.2d 93 (Wyo. 1989). W.R.A.P. 2.01 requires the notice of appeal to be filed with the clerk of the trial court within 30 days from entry of the appealable order. The appeal is not a trial de novo, and the deadline is not 10 days."
     }
   ],
   "judicial_guides": [
     {
       "source_type": "guide",
-      "source_title": "Wyoming Small Claims Bench Guide",
-      "section_number": "BG-1",
-      "topic": "judicial_reasoning_framework",
-      "content": "Small Claims Judicial Reasoning Framework.\n\nWhen deciding a small claims case, follow this analytical framework:\n\n1. JURISDICTION CHECK\n   - Is the amount within the $6,000 limit?\n   - Is the claim one that small claims court can hear?\n   - Is venue proper?\n\n2. IDENTIFY THE CLAIMS\n   - What specific legal claim is the plaintiff making?\n   - What are the elements the plaintiff must prove?\n   - Has a counterclaim been filed?\n\n3. DETERMINE THE FACTS\n   - What facts are undisputed?\n   - Where do the parties disagree?\n   - What evidence supports each version?\n\n4. WEIGH THE EVIDENCE\n   - Apply the preponderance standard\n   - Consider documentary vs. testimonial evidence\n   - Assess credibility of witnesses\n\n5. APPLY THE LAW\n   - Does the evidence meet the legal elements?\n   - Are there any defenses that apply?\n   - What amount of damages is proved?\n\n6. RENDER JUDGMENT\n   - State findings of fact clearly\n   - Explain the legal basis\n   - State the judgment amount\n   - Award costs if appropriate"
+      "source_title": "Simulation application note",
+      "section_number": "Note 1",
+      "topic": "rehearsal_limits",
+      "content": "Application note for this simulation, not an official bench guide. The user writes both sides, so the hearing rehearses that user's theory. It does not predict the other party's testimony. The real case starts with a sworn Small Claims Affidavit, a $10 filing fee, service, and an appearance 12 to 20 days after service. There is no jury. If the plaintiff does not appear, the Judicial Branch says the case is dismissed. If the defendant does not appear, the plaintiff is sworn and a default for the affidavit amount plus costs is the usual result. The court paper is a Judgment and Order, not findings of fact and conclusions of law. One circuit judge hears the case."
     },
     {
       "source_type": "guide",
-      "source_title": "Wyoming Small Claims Bench Guide",
-      "section_number": "BG-2",
+      "source_title": "Simulation application note",
+      "section_number": "Note 2",
       "topic": "common_claim_elements",
-      "content": "Elements of Common Small Claims.\n\nBREACH OF CONTRACT:\n1. A valid contract existed (written or oral)\n2. Plaintiff performed their obligations (or was excused)\n3. Defendant breached the contract\n4. Plaintiff suffered damages as a result\n\nPROPERTY DAMAGE (Negligence):\n1. Defendant owed plaintiff a duty of care\n2. Defendant breached that duty\n3. The breach caused the damage\n4. Plaintiff suffered actual damages\n\nSECURITY DEPOSIT:\n1. Tenant paid a security deposit\n2. Lease terminated and tenant vacated\n3. Landlord failed to return deposit within 30 days\n4. Landlord failed to provide itemized deduction statement\n   OR deductions were unreasonable\n\nMONEY OWED (Debt/Loan):\n1. Defendant received money/goods from plaintiff\n2. Defendant agreed to pay (or an obligation to pay exists)\n3. Defendant has not paid\n4. The amount claimed is correct\n\nCONSUMER DISPUTE:\n1. Transaction occurred\n2. Goods/services were defective or not as represented\n3. Plaintiff notified defendant of the problem\n4. Defendant failed to remedy\n5. Plaintiff suffered damages"
+      "content": "Application note, not an official elements checklist. Money claims that fit this docket include a debt the affidavit describes as justly due after a refused demand, unpaid work under $6,000, proven property damage, and a residential deposit under W.S. 1-21-1208. A lockout or a demand to be put back in possession is a forcible entry and detainer case. A repair order is not a small-claims money judgment. A freelance invoice is a contract claim. W.S. 27-4-104 is the wage-payment statute for an employee, and an employee may also use the Department of Workforce Services wage claim. Comparative fault under W.S. 1-1-109 is the fault rule for injury to person or property. It is not the measure of contract damages."
     },
     {
       "source_type": "guide",
-      "source_title": "Wyoming Magistrate Training - Small Claims",
-      "section_number": "MT-1",
+      "source_title": "Simulation application note",
+      "section_number": "Note 3",
       "topic": "hearing_management",
-      "content": "Managing the Small Claims Hearing.\n\nOPENING:\n- Introduce yourself and explain the informal nature of the proceeding\n- Verify the parties are present\n- Ask if there has been any attempt to resolve the matter\n- Explain the order of presentation\n\nPLAINTIFF'S CASE:\n- Let the plaintiff tell their story without interruption\n- Then ask clarifying questions\n- Ask the plaintiff to present documentary evidence\n- Allow the defendant to ask questions\n\nDEFENDANT'S CASE:\n- Let the defendant respond to the claims\n- Ask clarifying questions\n- Ask the defendant to present documentary evidence\n- Allow the plaintiff to ask questions\n\nCLOSING:\n- Ask each party if they have anything to add\n- Thank both parties for their time\n- Announce the decision or indicate when it will be issued\n\nTIPS:\n- Keep control of the hearing but remain approachable\n- Do not let parties argue with each other\n- Focus on the key disputed issues\n- Take notes during testimony\n- If math is involved, work through it openly"
-    },
-    {
-      "source_type": "guide",
-      "source_title": "Wyoming Self-Help Guide - Small Claims Court",
-      "section_number": "SH-1",
-      "topic": "self_help_procedural",
-      "content": "Wyoming Small Claims Court — What to Expect.\n\nWHO CAN FILE:\n- Any person or business owed money or claiming property damage\n- The amount must be $6,000 or less\n- You must file in the correct county\n\nWHAT TO BRING:\n- Any written contract or agreement\n- Receipts, invoices, or estimates\n- Photographs of damage or defective goods\n- Text messages or emails related to the dispute\n- A witness who can support your case (if available)\n- A clear, organized summary of your claim\n\nWHAT THE JUDGE CONSIDERS:\n- Who is more believable based on the evidence\n- Whether the plaintiff has proven their case by a preponderance\n- The exact amount of damages that are proven\n- Any defenses raised by the defendant\n\nCOMMON REASONS CASES ARE LOST:\n- Not enough evidence (just saying it happened is often not enough)\n- Not proving the amount of damages\n- Filing in the wrong court\n- Not properly serving the defendant\n- Missing the hearing"
+      "content": "Application note on the hearing the Judicial Branch describes. There is no jury. The plaintiff goes first and must explain why the amount is due, using papers, photos, or witnesses. The defendant then tells the other side. Bring copies for the court and the other party. The judge may decide at the hearing or take the case under advisement and mail the decision. A subpoena for a witness is requested from the clerk. The Judicial Branch says the subpoena must be served at least five days before trial."
     }
   ]
 }

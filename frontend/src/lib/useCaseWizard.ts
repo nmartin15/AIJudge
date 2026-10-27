@@ -10,6 +10,7 @@ import {
   type JudgeTemperament,
 } from "@/lib/mockSimulation";
 import { SIMULATION_MODE } from "@/lib/simulationService";
+import { toStoredCaseType } from "@/lib/storedCaseType";
 import {
   ApiClientError,
   addEvidence,
@@ -22,7 +23,6 @@ import {
 } from "@/lib/api";
 import type {
   Case,
-  CaseType,
   EvidenceType,
   PartyRole,
 } from "@/lib/types";
@@ -100,7 +100,7 @@ export function useCaseWizard() {
   const ensureCase = useCallback(async (): Promise<string | null> => {
     if (SIMULATION_MODE !== "backend") return null;
     const payload = {
-      case_type: selectedTemplate.caseType as CaseType,
+      case_type: toStoredCaseType(selectedTemplate.caseType),
       plaintiff_narrative: plaintiffNarrative,
       defendant_narrative: defendantNarrative,
       claimed_amount: amountClaimed,

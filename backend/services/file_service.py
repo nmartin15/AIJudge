@@ -98,3 +98,63 @@ def read_and_decrypt(file_path: str) -> bytes:
 def safe_filename(file_path: str) -> str:
     """Extract just the basename for Content-Disposition headers."""
     return os.path.basename(file_path)
+
+
+_TEXT_EXTENSIONS = frozenset({".txt", ".csv", ".eml"})
+_EXCERPT_LIMIT = 4000
+_WORD_NS = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
+
+
+def pipeline_excerpt(file_path: str | None) -> str | None:
+    """Text the model may read. Server paths are never included.
+
+    Text, CSV, and email files are decoded. Word documents are read from
+    their document XML. PDF and image files are reported as attached only.
+    """
+    if not file_path:
+        return None
+    extension = Path(file_path).suffix.lower()
+    try:
+        raw = read_and_decrypt(file_path)
+    except Exception:
+        return "A file is attached, but it could not be read."
+
+    if extension in _TEXT_EXTENSIONS:
+        text = raw.decode("utf-8", errors="replace").strip()
+        if not text:
+            return "The text file was empty."
+        if len(text) > _EXCERPT_LIMIT:
+            return text[:_EXCERPT_LIMIT] + "\n[excerpt truncated]"
+        return text
+
+    if extension == ".docx":
+        return _docx_excerpt(raw)
+
+    return (
+        "A file is attached and was not transcribed "
+        "(pdf, image, or binary document)."
+    )
+
+
+def _docx_excerpt(raw: bytes) -> str:
+    import xml.etree.ElementTree as ET
+    import zipfile
+    from io import BytesIO
+
+    try:
+        with zipfile.ZipFile(BytesIO(raw)) as archive:
+            document_xml = archive.read("word/document.xml")
+        root = ET.fromstring(document_xml)
+        pieces = [
+            node.text or ""
+            for node in root.iter(f"{_WORD_NS}t")
+        ]
+        text = " ".join(piece for piece in pieces if piece).strip()
+    except Exception:
+        return "A Word document is attached and could not be transcribed."
+
+    if not text:
+        return "A Word document is attached and contained no readable text."
+    if len(text) > _EXCERPT_LIMIT:
+        return text[:_EXCERPT_LIMIT] + "\n[excerpt truncated]"
+    return text

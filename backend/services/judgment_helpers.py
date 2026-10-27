@@ -10,6 +10,7 @@ from sqlalchemy import select
 
 from api.security import get_owned_case
 from models.database import Case, Hearing, PartyRole
+from services.file_service import pipeline_excerpt
 
 
 def extract_hearing_transcript(hearing: Hearing | None) -> list[dict] | None:
@@ -26,6 +27,34 @@ def derive_winner(value: str | None) -> PartyRole:
     return PartyRole.plaintiff if "plaintiff" in winner else PartyRole.defendant
 
 
+def serialize_case_records(case: Case) -> tuple[list[dict], list[dict]]:
+    """Plain records the pipeline can read. File paths stay on the server."""
+    evidence = [
+        {
+            "submitted_by": item.submitted_by.value if item.submitted_by else None,
+            "evidence_type": item.evidence_type.value if item.evidence_type else None,
+            "title": item.title,
+            "description": item.description,
+            "has_file": item.file_path is not None,
+            "pipeline_excerpt": pipeline_excerpt(item.file_path),
+        }
+        for item in (case.evidence or [])
+    ]
+    timeline = [
+        {
+            "event_date": item.event_date.isoformat() if item.event_date else None,
+            "description": item.description,
+            "source": item.source.value if item.source else None,
+            "disputed": bool(item.disputed),
+        }
+        for item in sorted(
+            case.timeline_events or [],
+            key=lambda event: event.event_date.isoformat() if event.event_date else "",
+        )
+    ]
+    return evidence, timeline
+
+
 def comparison_run_key(
     case: Case,
     hearing: Hearing | None,
@@ -40,6 +69,23 @@ def comparison_run_key(
         "updated_at": case.updated_at.isoformat() if case.updated_at else None,
         "hearing_completed_at": hearing.completed_at.isoformat() if hearing and hearing.completed_at else None,
         "hearing_message_count": len(hearing.messages) if hearing and hearing.messages else 0,
+        "evidence": [
+            {
+                "title": item.title,
+                "description": item.description,
+                "submitted_by": item.submitted_by.value if item.submitted_by else None,
+                "file_path": item.file_path,
+            }
+            for item in (case.evidence or [])
+        ],
+        "timeline": [
+            {
+                "description": item.description,
+                "disputed": bool(item.disputed),
+                "event_date": item.event_date.isoformat() if item.event_date else None,
+            }
+            for item in (case.timeline_events or [])
+        ],
     }
     serialized = json.dumps(key_payload, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
