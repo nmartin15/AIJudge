@@ -226,3 +226,17 @@ The nginx reverse proxy adds:
 - **CORS tightened** — Explicit method and header allowlists replace wildcards.
 - **Health endpoint** — Returns minimal info by default; detailed diagnostics require `?detail=true`.
 - **No internal path leakage** — Evidence responses return a `has_file` boolean instead of the server file path.
+
+## Future build
+
+The saved demo is the case interaction to build. The current wizard, hearing, and pipeline stay as they are until that build starts.
+
+Open it at `/demo` (`frontend/src/app/demo`, `frontend/src/video-demo`). It is a disposable frontend walkthrough: a first visit, a dummy login, one finished side, then a skip to both parties, replies, and a decision. Delete those two folders together when the real build replaces it.
+
+The claim itself is one desktop page:
+
+- Name, the other person, the amount, and what you want sit at the top.
+- Each claim is open text. The date starts as today and can be changed. A paperclip under that claim holds the documents that support it, including more than one.
+- A plus at the bottom adds another claim, with today's date and its own paperclip.
+
+Two people still each write their own side. The dialogue is written. It is not a live audio call and not a caption file of speech. After both sides are in, each person answers only what they dispute, and the decision says who prevails, for how much, which proof decided it, and what is still uncertain.
