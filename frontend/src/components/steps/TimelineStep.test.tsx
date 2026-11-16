@@ -28,31 +28,24 @@ describe("TimelineStep", () => {
     expect(screen.getByText(/add a timeline event/i)).toBeInTheDocument();
   });
 
-  it("disables add button when date or description is empty", () => {
+  it("keeps add available before the date and description are filled", () => {
     render(<TimelineStep {...defaultProps()} />);
-    const addBtn = screen.getByRole("button", { name: /add event/i });
-    expect(addBtn).toBeDisabled();
-
-    const dateInput = document.querySelector(
-      'input[type="datetime-local"]'
-    ) as HTMLInputElement;
-    fireEvent.change(dateInput, { target: { value: "2025-01-15T10:00" } });
-    expect(addBtn).toBeDisabled();
+    expect(screen.getByRole("button", { name: /add event/i })).toBeEnabled();
   });
 
-  it("enables add button when both date and description are filled", () => {
-    render(<TimelineStep {...defaultProps()} />);
+  it("calls onSave for a blank event", async () => {
+    const onSave = vi.fn().mockResolvedValue(undefined);
+    render(<TimelineStep {...defaultProps({ onSave })} />);
 
-    const dateInput = document.querySelector(
-      'input[type="datetime-local"]'
-    ) as HTMLInputElement;
-    fireEvent.change(dateInput, { target: { value: "2025-01-15T10:00" } });
-    fireEvent.change(screen.getByPlaceholderText(/describe the event/i), {
-      target: { value: "Lease signed" },
-    });
+    fireEvent.click(screen.getByRole("button", { name: /add event/i }));
 
-    const addBtn = screen.getByRole("button", { name: /add event/i });
-    expect(addBtn).not.toBeDisabled();
+    await waitFor(() => expect(onSave).toHaveBeenCalledTimes(1));
+    expect(onSave).toHaveBeenCalledWith(
+      expect.objectContaining({
+        date: "",
+        description: "",
+      }),
+    );
   });
 
   it("calls onSave with form data when add button is clicked", async () => {
@@ -60,9 +53,9 @@ describe("TimelineStep", () => {
     render(<TimelineStep {...defaultProps({ onSave })} />);
 
     const dateInput = document.querySelector(
-      'input[type="datetime-local"]'
+      'input[type="date"]'
     ) as HTMLInputElement;
-    fireEvent.change(dateInput, { target: { value: "2025-01-15T10:00" } });
+    fireEvent.change(dateInput, { target: { value: "2025-01-15" } });
     fireEvent.change(screen.getByPlaceholderText(/describe the event/i), {
       target: { value: "Lease ended" },
     });
@@ -71,7 +64,7 @@ describe("TimelineStep", () => {
     await waitFor(() => expect(onSave).toHaveBeenCalledTimes(1));
     expect(onSave).toHaveBeenCalledWith(
       expect.objectContaining({
-        date: "2025-01-15T10:00",
+        date: "2025-01-15",
         description: "Lease ended",
         source: "plaintiff",
         disputed: false,
@@ -84,9 +77,9 @@ describe("TimelineStep", () => {
     render(<TimelineStep {...defaultProps({ onSave })} />);
 
     const dateInput = document.querySelector(
-      'input[type="datetime-local"]'
+      'input[type="date"]'
     ) as HTMLInputElement;
-    fireEvent.change(dateInput, { target: { value: "2025-01-15T10:00" } });
+    fireEvent.change(dateInput, { target: { value: "2025-01-15" } });
     const descInput = screen.getByPlaceholderText(/describe the event/i);
     fireEvent.change(descInput, { target: { value: "Event A" } });
     fireEvent.click(screen.getByRole("button", { name: /add event/i }));
@@ -101,9 +94,9 @@ describe("TimelineStep", () => {
     render(<TimelineStep {...defaultProps({ onSave })} />);
 
     const dateInput = document.querySelector(
-      'input[type="datetime-local"]'
+      'input[type="date"]'
     ) as HTMLInputElement;
-    fireEvent.change(dateInput, { target: { value: "2025-06-01T09:00" } });
+    fireEvent.change(dateInput, { target: { value: "2025-06-01" } });
     fireEvent.change(screen.getByPlaceholderText(/describe the event/i), {
       target: { value: "Disputed event" },
     });
@@ -147,9 +140,9 @@ describe("TimelineStep", () => {
     expect(screen.getByText("Disputed")).toBeInTheDocument();
   });
 
-  it("shows simulation hint when not in backend mode and no events", () => {
+  it("says events can be added before they are filled in", () => {
     render(<TimelineStep {...defaultProps({ isBackendMode: false })} />);
-    expect(screen.getByText(/simulation mode/i)).toBeInTheDocument();
+    expect(screen.getByText(/empty events are fine/i)).toBeInTheDocument();
   });
 
   it("shows error message", () => {

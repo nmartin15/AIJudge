@@ -201,8 +201,10 @@ describe("Home page integration flows", () => {
     await waitFor(() =>
       expect(screen.getByText(/what happened, and when/i)).toBeInTheDocument()
     );
-    const dateInput = document.querySelector('input[type="datetime-local"]') as HTMLInputElement;
-    fireEvent.change(dateInput, { target: { value: "2025-01-15T10:00" } });
+    const dateInput = document.querySelector(
+      'input[type="date"]'
+    ) as HTMLInputElement;
+    fireEvent.change(dateInput, { target: { value: "2025-01-15" } });
     const descInput = screen.getByPlaceholderText(/describe the event/i);
     fireEvent.change(descInput, { target: { value: "Test event" } });
     fireEvent.click(

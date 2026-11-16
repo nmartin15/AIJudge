@@ -139,7 +139,7 @@ function TemplateCombobox({
   return (
     <div
       ref={containerRef}
-      className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900"
+      className={`rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900 ${open ? "relative z-20" : ""}`}
     >
       <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
         Start from an example case
@@ -276,8 +276,9 @@ function TemplateCombobox({
       {/* Result count when filtering */}
       {open && lowerQuery && (
         <p className="mt-2 text-xs text-zinc-400">
-          {filtered.length} template{filtered.length !== 1 ? "s" : ""} match
-          {filtered.length !== 1 ? "" : "es"} your search
+          {filtered.length === 1
+            ? "1 template matches your search"
+            : `${filtered.length} templates match your search`}
         </p>
       )}
     </div>

@@ -172,12 +172,15 @@ export default function Home() {
           />
         ) : (
         <>
-        <header className="mb-8 text-center sm:mb-10">
-          <h1 className="text-2xl font-bold tracking-tight text-wy-navy sm:text-4xl dark:text-white">
+        <header className="mb-8 sm:mb-10">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-wy-navy/70 dark:text-wy-gold">
+            Circuit Court
+          </p>
+          <h1 className="mt-2 font-serif text-3xl font-medium tracking-tight text-wy-navy sm:text-4xl dark:text-white">
             Let&apos;s figure out your case
           </h1>
-          <div className="mx-auto mt-3 h-1 w-16 rounded-full bg-wy-gold sm:mt-4 sm:w-20" />
-          <p className="mx-auto mt-2 max-w-2xl text-sm leading-relaxed text-zinc-500 sm:mt-3 dark:text-zinc-400">
+          <div className="mt-4 h-0.5 w-12 bg-wy-gold" />
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">
             Walk through each step below. Take your time &mdash; the more detail
             you provide, the better the judge can understand your situation.
           </p>
@@ -272,8 +275,12 @@ export default function Home() {
 
           {wizard.activeStep === 3 && (
             <TimelineStep
-              savedEvents={wizard.caseRecord?.timeline_events ?? []}
+              savedEvents={[
+                ...wizard.draftTimelineEvents,
+                ...(wizard.caseRecord?.timeline_events ?? []),
+              ]}
               onSave={(data) => wizard.saveTimelineEvent(data)}
+              onUpdate={wizard.updateTimelineEvent}
               isSaving={wizard.isSavingStep}
               error={wizard.stepError}
               onBack={() => {
@@ -301,6 +308,10 @@ export default function Home() {
               hearingConcluded={wizard.hearing.concluded}
               hasExistingJudgment={simulation.result !== null}
               isBackendMode={SIMULATION_MODE === "backend"}
+              timelineEventCount={
+                (wizard.caseRecord?.timeline_events.length ?? 0) +
+                wizard.draftTimelineEvents.length
+              }
               onBack={() => {
                 wizard.setStepError(null);
                 wizard.setActiveStep(3);

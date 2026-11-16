@@ -32,9 +32,10 @@ export function SimulationStatusBanner({
   return (
     <>
       <div className="mb-8 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-800/50 dark:bg-amber-900/20 dark:text-amber-300">
-        <strong>Educational simulation:</strong> This interface currently uses mock
-        WY-style data in mock mode so you can validate UX before full legal corpus
-        integration.
+        <strong>Educational simulation:</strong>{" "}
+        {configuredMode === "mock"
+          ? "Mock mode is on. It does not read the stories or pick a winner."
+          : "This screen is using the backend pipeline. A result is a rehearsal, not a circuit-court order."}
       </div>
       <div className="mb-8 rounded-lg border border-zinc-200 bg-zinc-50 p-3 text-sm text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300">
         Runtime mode from env:{" "}

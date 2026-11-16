@@ -216,7 +216,7 @@ export function JudgmentView({
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
         <svg
-          className="h-10 w-10 animate-spin text-zinc-400"
+          className="h-10 w-10 animate-spin text-wy-navy dark:text-wy-gold"
           viewBox="0 0 24 24"
           fill="none"
         >
@@ -234,7 +234,7 @@ export function JudgmentView({
             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
           />
         </svg>
-        <p className="text-lg font-semibold text-zinc-600 dark:text-zinc-400">
+        <p className="font-serif text-lg font-medium text-wy-navy dark:text-white">
           The judge is deliberating...
         </p>
         <p className="text-sm text-zinc-400">
@@ -247,36 +247,32 @@ export function JudgmentView({
   return (
     <div className="animate-fade-in space-y-8">
       {/* Decision header */}
-      <div className="rounded-2xl border-2 border-emerald-200 bg-gradient-to-b from-emerald-50 to-white p-5 text-center sm:p-8 dark:border-emerald-800 dark:from-emerald-950/30 dark:to-zinc-900">
-        <p className="text-xs font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+      <div className="border border-wy-navy/15 bg-white px-5 py-8 text-center shadow-sm sm:px-10 sm:py-10 dark:border-white/10 dark:bg-[#101c30]">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-wy-navy/70 dark:text-wy-gold">
+          Circuit Court · Small Claims
+        </p>
+        <div className="mx-auto mt-3 h-0.5 w-16 bg-wy-gold" />
+        <div className="mx-auto h-px w-16 bg-wy-red" />
+        <p className="mt-5 text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500 dark:text-zinc-400">
           Judgment rendered by {judge.name}
         </p>
-        <h1 className="mt-2 text-2xl font-bold tracking-tight text-zinc-900 sm:mt-3 sm:text-3xl dark:text-zinc-100">
-          Finding for the{" "}
-          <span
-            className={
-              result.winner === "plaintiff"
-                ? "text-blue-600 dark:text-blue-400"
-                : "text-violet-600 dark:text-violet-400"
-            }
-          >
-            {result.winner}
-          </span>
+        <h1 className="mt-3 font-serif text-3xl font-medium tracking-tight text-wy-navy sm:text-4xl dark:text-white">
+          Finding for the <span>{result.winner}</span>
         </h1>
 
-        <div className="mt-4 flex items-center justify-center gap-6 sm:mt-6 sm:gap-8">
+        <div className="mt-6 flex items-center justify-center gap-6 sm:gap-8">
           <div>
-            <p className="text-xs text-zinc-400">Award</p>
-            <p className="mt-1 text-xl font-bold text-zinc-900 sm:text-2xl dark:text-zinc-100">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Award</p>
+            <p className="mt-1 font-serif text-2xl font-medium tabular-nums text-wy-navy sm:text-3xl dark:text-white">
               {toCurrency(result.awardAmount)}
             </p>
           </div>
           {confidenceLabel(result.confidence) && (
             <>
-              <div className="h-8 w-px bg-zinc-200 dark:bg-zinc-700" />
+              <div className="h-8 w-px bg-wy-navy/15 dark:bg-white/15" />
               <div>
-                <p className="text-xs text-zinc-400">Confidence</p>
-                <p className="mt-1 text-xl font-bold text-zinc-900 sm:text-2xl dark:text-zinc-100">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Confidence</p>
+                <p className="mt-1 font-serif text-2xl font-medium tabular-nums text-wy-navy sm:text-3xl dark:text-white">
                   {confidenceLabel(result.confidence)}
                 </p>
               </div>

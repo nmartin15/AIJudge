@@ -25,6 +25,7 @@ import type {
   Case,
   EvidenceType,
   PartyRole,
+  TimelineEvent,
 } from "@/lib/types";
 import { normalizeError } from "@/lib/normalizeError";
 
@@ -76,6 +77,9 @@ export function useCaseWizard() {
 
   // ── Case record ────────────────────────────────────────────────────
   const [caseRecord, setCaseRecord] = useState<Case | null>(null);
+  const [draftTimelineEvents, setDraftTimelineEvents] = useState<TimelineEvent[]>(
+    [],
+  );
   const [isSavingStep, setIsSavingStep] = useState(false);
   const [stepError, setStepError] = useState<string | null>(null);
 
@@ -370,22 +374,64 @@ export function useCaseWizard() {
     }
   }
 
+  function makeDraftTimelineEvent(data: {
+    date: string;
+    description: string;
+    source: PartyRole;
+    disputed: boolean;
+  }): TimelineEvent {
+    return {
+      id: `draft-${crypto.randomUUID()}`,
+      case_id: caseRecord?.id ?? "draft",
+      event_date: data.date,
+      description: data.description,
+      source: data.source,
+      disputed: data.disputed,
+      created_at: new Date().toISOString(),
+    };
+  }
+
+  function updateTimelineEvent(
+    id: string,
+    data: {
+      date: string;
+      description: string;
+      source: PartyRole;
+      disputed: boolean;
+    },
+  ): void {
+    setDraftTimelineEvents((current) =>
+      current.map((event) =>
+        event.id === id
+          ? {
+              ...event,
+              event_date: data.date,
+              description: data.description,
+              source: data.source,
+              disputed: data.disputed,
+            }
+          : event,
+      ),
+    );
+  }
+
   async function saveTimelineEvent(data: {
     date: string;
     description: string;
     source: PartyRole;
     disputed: boolean;
   }): Promise<void> {
-    if (SIMULATION_MODE !== "backend") {
-      setStepError("Timeline entry requires backend mode.");
-      return;
-    }
-    if (!caseRecord) {
-      setStepError("Save case basics before adding timeline events.");
-      return;
-    }
-    if (!data.date || !data.description.trim()) {
-      setStepError("Timeline date and description are required.");
+    setStepError(null);
+    const canPersist =
+      SIMULATION_MODE === "backend" &&
+      Boolean(caseRecord) &&
+      Boolean(data.date) &&
+      Boolean(data.description.trim());
+    if (!canPersist || !caseRecord) {
+      setDraftTimelineEvents((current) => [
+        ...current,
+        makeDraftTimelineEvent(data),
+      ]);
       return;
     }
     setIsSavingStep(true);
@@ -554,6 +600,8 @@ export function useCaseWizard() {
     setJudgeId,
     // Case record
     caseRecord,
+    draftTimelineEvents,
+    updateTimelineEvent,
     isSavingStep,
     stepError,
     setStepError,

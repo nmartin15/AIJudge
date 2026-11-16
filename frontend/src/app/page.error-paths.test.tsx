@@ -171,9 +171,9 @@ describe("Error path integration tests", () => {
         ).toBeInTheDocument()
       );
       const dateInput = document.querySelector(
-        'input[type="datetime-local"]'
+        'input[type="date"]'
       ) as HTMLInputElement;
-      fireEvent.change(dateInput, { target: { value: "2025-01-15T10:00" } });
+      fireEvent.change(dateInput, { target: { value: "2025-01-15" } });
       fireEvent.change(screen.getByPlaceholderText(/describe the event/i), {
         target: { value: "Test event" },
       });
@@ -416,9 +416,9 @@ describe("Error path integration tests", () => {
     );
 
     const dateInput = document.querySelector(
-      'input[type="datetime-local"]'
+      'input[type="date"]'
     ) as HTMLInputElement;
-    fireEvent.change(dateInput, { target: { value: "2025-01-15T10:00" } });
+    fireEvent.change(dateInput, { target: { value: "2025-01-15" } });
     fireEvent.change(screen.getByPlaceholderText(/describe the event/i), {
       target: { value: "Lease ended" },
     });

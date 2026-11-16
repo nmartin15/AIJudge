@@ -281,7 +281,10 @@ export function TriageScreener({ onComplete, onSkip }: TriageScreenerProps) {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-wy-navy/70 dark:text-wy-gold">
+          Before you file
+        </p>
+        <h2 className="mt-2 font-serif text-3xl font-medium tracking-tight text-wy-navy dark:text-white">
           Quick case check
         </h2>
         <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
@@ -291,9 +294,9 @@ export function TriageScreener({ onComplete, onSkip }: TriageScreenerProps) {
       </div>
 
       {/* Progress bar */}
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-700">
+      <div className="h-1 w-full overflow-hidden bg-wy-navy/10 dark:bg-white/10">
         <div
-          className="h-full rounded-full bg-zinc-900 transition-all duration-300 dark:bg-zinc-100"
+          className="h-full bg-wy-navy transition-all duration-300 dark:bg-wy-gold"
           style={{ width: `${progress}%` }}
         />
       </div>
@@ -303,7 +306,7 @@ export function TriageScreener({ onComplete, onSkip }: TriageScreenerProps) {
         <p className="text-xs font-semibold uppercase tracking-wide text-zinc-400">
           Question {currentQuestion + 1} of {totalQuestions}
         </p>
-        <p className="mt-2 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+        <p className="mt-2 font-serif text-xl font-medium text-wy-navy dark:text-white">
           {question.question}
         </p>
       </div>
@@ -314,7 +317,7 @@ export function TriageScreener({ onComplete, onSkip }: TriageScreenerProps) {
           <button
             key={option.value}
             type="button"
-            className="w-full rounded-lg border border-zinc-200 p-4 text-left text-sm font-medium text-zinc-700 transition-all hover:border-zinc-400 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-zinc-500 dark:hover:bg-zinc-800"
+            className="w-full border border-wy-navy/15 bg-white p-4 text-left text-sm font-medium text-wy-navy transition-colors hover:border-wy-navy hover:bg-wy-navy-50 dark:border-white/15 dark:bg-[#101c30] dark:text-zinc-100 dark:hover:border-wy-gold dark:hover:bg-white/5"
             onClick={() => handleSelect(option.value)}
           >
             {option.label}

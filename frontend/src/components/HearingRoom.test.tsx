@@ -166,7 +166,7 @@ describe("HearingRoom", () => {
       />
     );
 
-    expect(screen.getByText("Alice")).toBeInTheDocument();
+    expect(screen.getAllByText("Alice").length).toBeGreaterThan(0);
   });
 
   // ── Input & sending ───────────────────────────────────────────────

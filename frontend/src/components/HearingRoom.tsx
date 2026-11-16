@@ -96,17 +96,37 @@ export function HearingRoom({
   return (
     <div className="animate-fade-in flex min-h-[calc(100vh-10rem)] flex-col sm:min-h-[calc(100vh-12rem)]">
       {/* Judge header */}
-      <div className="mb-4 text-center sm:mb-6">
-        <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-wy-navy text-xl font-bold text-white sm:mb-3 sm:h-16 sm:w-16 sm:text-2xl dark:bg-wy-gold dark:text-wy-navy">
-          {judge.name.split(" ").pop()?.[0] ?? "J"}
+      <div className="mb-4 overflow-hidden border border-wy-navy/15 sm:mb-6 dark:border-white/10">
+        <div className="bg-wy-navy px-4 py-4 text-center text-white sm:py-5">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-wy-gold">
+            The bench
+          </p>
+          <h2 className="mt-1 font-serif text-2xl font-medium tracking-tight">
+            {judge.name}
+          </h2>
+          <p className="mt-1 text-xs text-white/70">
+            {judge.tone} &middot; {judge.description}
+          </p>
         </div>
-        <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">
-          {judge.name}
-        </h2>
-        <p className="mt-1 text-xs text-zinc-500 sm:text-sm dark:text-zinc-400">
-          {judge.tone} &middot; {judge.description}
-        </p>
-        <div className="mt-2 flex items-center justify-center gap-2">
+        <div className="grid grid-cols-2 divide-x divide-wy-navy/10 bg-white dark:divide-white/10 dark:bg-[#101c30]">
+          <div className="px-3 py-2.5 text-center">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+              Plaintiff
+            </p>
+            <p className="mt-0.5 text-sm font-semibold text-wy-navy dark:text-white">
+              {plaintiffName || "Plaintiff"}
+            </p>
+          </div>
+          <div className="px-3 py-2.5 text-center">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+              Defendant
+            </p>
+            <p className="mt-0.5 text-sm font-semibold text-wy-navy dark:text-white">
+              {defendantName || "Defendant"}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center justify-center gap-2 border-t border-wy-navy/10 bg-wy-cream py-2 dark:border-white/10 dark:bg-[#0c1728]">
           <span
             aria-hidden="true"
             className={`inline-block h-2 w-2 rounded-full ${
@@ -117,7 +137,7 @@ export function HearingRoom({
                   : "bg-zinc-300"
             }`}
           />
-          <span role="status" className="text-xs text-zinc-400">
+          <span role="status" className="text-xs text-zinc-500 dark:text-zinc-400">
             {isConnected
               ? "Live connection"
               : hasHearingRecord
@@ -171,7 +191,7 @@ export function HearingRoom({
       {!hearingNotStarted && (
         <>
           {/* Message area */}
-          <div role="log" aria-live="polite" className="flex-1 overflow-y-auto rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900/50">
+          <div role="log" aria-live="polite" className="flex-1 overflow-y-auto border border-wy-navy/10 bg-white p-4 dark:border-white/10 dark:bg-[#101c30]">
             {messages.length === 0 ? (
               <div className="flex h-full items-center justify-center">
                 <p className="text-sm text-zinc-400">Waiting for the hearing to begin...</p>
@@ -186,19 +206,21 @@ export function HearingRoom({
                       className={`flex ${isJudge ? "justify-start" : "justify-end"}`}
                     >
                       <div
-                        className={`max-w-[90%] rounded-2xl px-3 py-2.5 sm:max-w-[80%] sm:px-4 sm:py-3 ${
+                        className={`max-w-[90%] px-3 py-2.5 sm:max-w-[80%] sm:px-4 sm:py-3 ${
                           isJudge
-                            ? "rounded-tl-md bg-white text-zinc-900 shadow-sm dark:bg-zinc-800 dark:text-zinc-100"
+                            ? "border-l-2 border-wy-gold bg-wy-cream text-zinc-900 dark:bg-[#16243a] dark:text-zinc-100"
                             : msg.role === "plaintiff"
-                              ? "rounded-tr-md bg-blue-600 text-white"
-                              : "rounded-tr-md bg-violet-600 text-white"
+                              ? "bg-wy-navy text-white"
+                              : "border border-wy-navy/20 bg-wy-navy-50 text-wy-navy dark:border-wy-gold/30 dark:bg-wy-gold/10 dark:text-white"
                         }`}
                       >
                         <p
                           className={`mb-1 text-xs font-semibold ${
                             isJudge
                               ? "text-zinc-500 dark:text-zinc-400"
-                              : "text-white/80"
+                              : msg.role === "plaintiff"
+                                ? "text-white/80"
+                                : "text-wy-navy/70 dark:text-wy-gold"
                           }`}
                         >
                           {roleDisplayName(msg.role, plaintiffName, defendantName)}
@@ -234,16 +256,16 @@ export function HearingRoom({
 
           {/* Concluded banner */}
           {concluded && (
-            <div role="status" className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-5 text-center dark:border-emerald-800 dark:bg-emerald-950/20">
-              <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
+            <div role="status" className="mt-4 border border-wy-navy/15 bg-white p-5 text-center dark:border-white/10 dark:bg-[#101c30]">
+              <p className="font-serif text-lg font-medium text-wy-navy dark:text-white">
                 The hearing has concluded.
               </p>
-              <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">
+              <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
                 The judge has heard enough to make a decision.
               </p>
               <button
                 type="button"
-                className="mt-4 rounded-lg bg-emerald-600 px-8 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600"
+                className="mt-4 bg-wy-navy px-8 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-wy-navy-light dark:bg-wy-gold dark:text-wy-navy dark:hover:bg-wy-gold-light"
                 onClick={onProceedToJudgment}
               >
                 Get my judgment

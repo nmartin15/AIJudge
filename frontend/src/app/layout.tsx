@@ -1,10 +1,15 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Literata, Nunito_Sans } from "next/font/google";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const appSans = Nunito_Sans({
+  variable: "--font-app-sans",
+  subsets: ["latin"],
+});
+
+const appSerif = Literata({
+  variable: "--font-app-serif",
   subsets: ["latin"],
 });
 
@@ -34,24 +39,31 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${appSans.variable} ${appSerif.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="min-h-screen bg-wy-cream dark:bg-zinc-950">
-          <header className="sticky top-0 z-40 border-b border-wy-navy-dark bg-wy-navy/[.97] backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-900/95">
+        <div className="min-h-screen bg-wy-cream dark:bg-[#0c1728]">
+          <header className="sticky top-0 z-40 bg-wy-navy">
             <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:h-16 sm:px-6">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-wy-gold text-sm font-extrabold text-wy-navy shadow-sm sm:h-10 sm:w-10 sm:text-base">
-                  WJ
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                <div className="flex h-9 w-9 items-center justify-center bg-wy-gold text-wy-navy sm:h-10 sm:w-10">
+                  <BuckingHorse />
                 </div>
-                <span className="text-base font-semibold text-white sm:text-lg">
-                  Wyoming AI Judge
-                </span>
+                <div className="leading-none">
+                  <p className="font-serif text-base font-medium tracking-tight text-white sm:text-lg">
+                    Wyoming
+                  </p>
+                  <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-wy-gold">
+                    Small claims
+                  </p>
+                </div>
               </div>
-              <span className="rounded-full border border-wy-gold/30 bg-wy-gold/15 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-wy-gold sm:px-3 sm:py-1 sm:text-xs">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/70 sm:text-xs">
                 Educational
-                <span className="hidden sm:inline"> Simulation</span>
-              </span>
+                <span className="hidden sm:inline"> simulation</span>
+              </p>
             </div>
+            <div className="h-0.5 bg-wy-gold" />
+            <div className="h-px bg-wy-red" />
           </header>
           <main>
             <ErrorBoundary>{children}</ErrorBoundary>
@@ -59,5 +71,18 @@ export default function RootLayout({
         </div>
       </body>
     </html>
+  );
+}
+
+function BuckingHorse() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 32 32"
+      className="h-6 w-6 sm:h-7 sm:w-7"
+      fill="currentColor"
+    >
+      <path d="M7 22.5c1.2-2.4 2.2-3.4 4.2-4.2 1.2-.5 1.6-1.4 1.3-2.6-.4-1.6-1.8-2.2-3.2-1.6-.6.3-1.3.2-1.8-.3L6.2 12l2.4-1.2c.8-.4 1.2-1.2 1-2.1L9.2 7h2.4l.8 1.6c.4.8 1.2 1.3 2.1 1.3h2.2c1.4 0 2.4 1.4 1.9 2.7l-.6 1.6c-.3.8.1 1.6.8 2l2.2 1.1c1.6.8 2.4 2.6 1.9 4.3l-.7 2.2h-2.3l.5-1.6c.2-.7-.1-1.4-.7-1.7l-2.4-1.1-1.1 3.2c-.4 1.1-1.4 1.8-2.6 1.8H9.4l-.8 2.2H6.2L7 22.5z" />
+    </svg>
   );
 }

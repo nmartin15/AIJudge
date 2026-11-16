@@ -15,6 +15,7 @@ interface ReviewStepProps {
   hearingConcluded: boolean;
   hasExistingJudgment: boolean;
   isBackendMode: boolean;
+  timelineEventCount?: number;
   onBack: () => void;
   onBeginHearing: () => void;
   onSkipToJudgment: () => void;
@@ -38,13 +39,15 @@ export function ReviewStep({
   hearingConcluded,
   hasExistingJudgment,
   isBackendMode,
+  timelineEventCount,
   onBack,
   onBeginHearing,
   onSkipToJudgment,
 }: ReviewStepProps) {
   const selectedJudge = mockJudges.find((j) => j.id === judgeId) ?? mockJudges[0];
   const evidenceCount = caseRecord?.evidence.length ?? 0;
-  const timelineCount = caseRecord?.timeline_events.length ?? 0;
+  const timelineCount =
+    timelineEventCount ?? caseRecord?.timeline_events.length ?? 0;
   const partyCount = caseRecord?.parties.length ?? 0;
 
   return (
