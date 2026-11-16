@@ -12,10 +12,9 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:?Set POSTGRES_USER in .env}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
       POSTGRES_DB: ${POSTGRES_DB:-ai_judge}
-    # No host port exposure — only reachable within the Docker network.
-    # For local dev access, uncomment the ports block below.
-    # ports:
-    #   - "5432:5432"
+    # Host 5432 is the local PostgreSQL install. The app database is published on 5433.
+    ports:
+      - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./db-init:/docker-entrypoint-initdb.d:ro

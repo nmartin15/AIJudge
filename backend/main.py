@@ -143,8 +143,9 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=[
+        "Authorization",
         "Content-Type",
         "X-Session-Id",
         "X-Admin-Key",
@@ -157,6 +158,7 @@ app.add_middleware(
 # ─── Register Routers ─────────────────────────────────────────────────────────
 
 from api.cases import router as cases_router
+from api.claim_track import router as claim_track_router
 from api.auth import router as auth_router
 from api.hearing import router as hearing_router
 from api.judgment import router as judgment_router
@@ -164,6 +166,7 @@ from api.comparison import router as comparison_router
 from api.corpus import router as corpus_router
 
 app.include_router(cases_router, tags=["Cases"])
+app.include_router(claim_track_router, tags=["Claim track"])
 app.include_router(auth_router, tags=["Auth"])
 app.include_router(hearing_router, tags=["Hearings"])
 app.include_router(judgment_router, tags=["Judgments"])

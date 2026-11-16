@@ -377,6 +377,93 @@ class LLMCall(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
 
+class ClaimMatter(Base):
+    """A security-deposit file. Not a wizard case."""
+
+    __tablename__ = "claim_matters"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    step = Column(String(40), nullable=False, default="welcome", server_default="welcome")
+    owner = Column(String(16), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+
+    sides = relationship("ClaimSide", back_populates="matter", cascade="all, delete-orphan")
+
+
+class ClaimSide(Base):
+    """One person's header on a deposit file. Claims hang off this row."""
+
+    __tablename__ = "claim_sides"
+    __table_args__ = (
+        UniqueConstraint("matter_id", "owner", name="uq_claim_sides_matter_owner"),
+        Index("ix_claim_sides_matter_id", "matter_id"),
+    )
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    matter_id = Column(UUID(as_uuid=True), ForeignKey("claim_matters.id", ondelete="CASCADE"), nullable=False)
+    owner = Column(String(16), nullable=False)
+    name = Column(String(200), nullable=False, default="", server_default="")
+    other_name = Column(String(200), nullable=False, default="", server_default="")
+    amount = Column(String(32), nullable=False, default="", server_default="")
+    wants = Column(Text, nullable=False, default="", server_default="")
+    private_gaps = Column(JSONB, nullable=False, default=list, server_default="[]")
+    disputes = Column(JSONB, nullable=False, default=list, server_default="[]")
+
+    matter = relationship("ClaimMatter", back_populates="sides")
+    claims = relationship(
+        "ClaimEntry",
+        back_populates="side",
+        cascade="all, delete-orphan",
+        order_by="ClaimEntry.position",
+    )
+
+
+class ClaimEntry(Base):
+    """One claim on the page: text, date, and the documents under it."""
+
+    __tablename__ = "claim_entries"
+    __table_args__ = (
+        UniqueConstraint("side_id", "client_id", name="uq_claim_entries_side_client"),
+        Index("ix_claim_entries_side_id", "side_id"),
+    )
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    side_id = Column(UUID(as_uuid=True), ForeignKey("claim_sides.id", ondelete="CASCADE"), nullable=False)
+    client_id = Column(String(120), nullable=False)
+    text = Column(Text, nullable=False, default="", server_default="")
+    claim_date = Column(String(10), nullable=False)
+    position = Column(Integer, nullable=False, default=0, server_default="0")
+
+    side = relationship("ClaimSide", back_populates="claims")
+    files = relationship(
+        "ClaimDocument",
+        back_populates="entry",
+        cascade="all, delete-orphan",
+        order_by="ClaimDocument.position",
+    )
+
+
+class ClaimDocument(Base):
+    """A document attached to one claim."""
+
+    __tablename__ = "claim_documents"
+    __table_args__ = (
+        UniqueConstraint("entry_id", "client_id", name="uq_claim_documents_entry_client"),
+        Index("ix_claim_documents_entry_id", "entry_id"),
+    )
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    entry_id = Column(UUID(as_uuid=True), ForeignKey("claim_entries.id", ondelete="CASCADE"), nullable=False)
+    client_id = Column(String(400), nullable=False)
+    title = Column(String(300), nullable=False, default="", server_default="")
+    kind = Column(String(120), nullable=False, default="", server_default="")
+    lines = Column(JSONB, nullable=False, default=list, server_default="[]")
+    position = Column(Integer, nullable=False, default=0, server_default="0")
+
+    entry = relationship("ClaimEntry", back_populates="files")
+
+
 class PromptVersion(Base):
     """Versioned prompt for reproducibility and A/B testing."""
 

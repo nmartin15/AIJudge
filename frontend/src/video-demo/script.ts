@@ -42,6 +42,20 @@ export const demoLogin = {
   password: "deposit1500",
 };
 
+export const jordanLogin = {
+  name: "Jordan Hale",
+  email: "jordan.hale@demo.wy",
+  password: "carpet1500",
+};
+
+/** Dummy accounts for this track. They do not authenticate anywhere else. */
+export function loginOwner(email: string, password: string): DemoOwner | null {
+  const normalized = email.trim().toLowerCase();
+  if (normalized === demoLogin.email && password === demoLogin.password) return "alex";
+  if (normalized === jordanLogin.email && password === jordanLogin.password) return "jordan";
+  return null;
+}
+
 export const demoCase = {
   judgeId: "common_sense" as const,
   amountClaimed: 1500,

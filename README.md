@@ -229,9 +229,9 @@ The nginx reverse proxy adds:
 
 ## Future build
 
-The saved demo is the case interaction to build. The current wizard, hearing, and pipeline stay as they are until that build starts.
+The saved demo is the case interaction to build. The wizard, hearing, and pipeline stay on their own line. This track does not write into those tables.
 
-Open it at `/demo` (`frontend/src/app/demo`, `frontend/src/video-demo`). It is a disposable frontend walkthrough: a first visit, a dummy login, one finished side, then a skip to both parties, replies, and a decision. Delete those two folders together when the real build replaces it.
+Open it at `/demo` (`frontend/src/app/demo`, `frontend/src/video-demo`). It is a security-deposit case at or under $6,000. The claim page creates a `claim_matters` row through `POST /claim-matters`. Each claim and each document on that page is its own row after that: create, update, and delete. That file is not a wizard case. Alex and Jordan each have a dummy login and their own side. Delete those two folders together when a later build replaces this track.
 
 The claim itself is one desktop page:
 
