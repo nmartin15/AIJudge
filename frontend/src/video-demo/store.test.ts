@@ -46,8 +46,17 @@ describe("claim track store", () => {
     const removed = removeFile(withFile, "added-test", "extra");
     expect(removed.claims.at(-1)?.files).toHaveLength(0);
 
-    saveTrack({ ...track, owner: "alex", step: "submit-alex", sides: { ...track.sides, alex: withFile } });
+    saveTrack({
+      ...track,
+      owner: "alex",
+      step: "submit-alex",
+      sides: {
+        ...track.sides,
+        alex: { ...withFile, claims: [...withFile.claims, withFile.claims[0]] },
+      },
+    });
     const loaded = loadTrack();
+    expect(loaded.sides.alex.claims.filter((claim) => claim.id === "deposit")).toHaveLength(1);
     expect(loaded.step).toBe("submit-alex");
     expect(loaded.sides.alex.claims.at(-1)?.id).toBe("added-test");
     expect(loaded.sides.alex.claims.at(-1)?.files[0]?.title).toBe("Note.txt");

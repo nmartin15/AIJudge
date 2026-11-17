@@ -166,6 +166,7 @@ export default function VideoDemoPage() {
         {step === "decision" && (
           <ServerDecision
             matterId={state.matterId}
+            offline={state.server === "offline"}
             onReplay={() => {
               track.assign({ owner: null, step: "welcome" });
             }}
@@ -176,16 +177,22 @@ export default function VideoDemoPage() {
   );
 }
 
-function ServerDecision({ matterId, onReplay }: { matterId?: string | null; onReplay: () => void }) {
+function ServerDecision({
+  matterId,
+  offline,
+  onReplay,
+}: {
+  matterId?: string | null;
+  offline: boolean;
+  onReplay: () => void;
+}) {
   const [reading, setReading] = useState<FileReading | null>(null);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
-    if (!matterId) {
-      setFailed(true);
-      return;
-    }
+    if (!matterId) return;
     let cancel = false;
+    setFailed(false);
     readClaimReading(matterId)
       .then((next) => {
         if (!cancel) setReading(next);
@@ -198,7 +205,7 @@ function ServerDecision({ matterId, onReplay }: { matterId?: string | null; onRe
     };
   }, [matterId]);
 
-  if (failed) {
+  if (failed || (!matterId && offline)) {
     return <p className="text-base text-zinc-600 dark:text-zinc-300">The server did not produce a reading.</p>;
   }
   if (!reading) {

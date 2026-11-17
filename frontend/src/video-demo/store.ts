@@ -240,6 +240,24 @@ export function readFile(sides: Record<DemoOwner, StoredSide>): FileReading {
   };
 }
 
+function uniqueClaims(claims: StoredClaim[]): StoredClaim[] {
+  const seen = new Set<string>();
+  const unique: StoredClaim[] = [];
+  for (const claim of claims) {
+    if (seen.has(claim.id)) continue;
+    seen.add(claim.id);
+    unique.push(claim);
+  }
+  return unique;
+}
+
+function uniqueSides(sides: Record<DemoOwner, StoredSide>): Record<DemoOwner, StoredSide> {
+  return {
+    alex: { ...sides.alex, claims: uniqueClaims(sides.alex.claims) },
+    jordan: { ...sides.jordan, claims: uniqueClaims(sides.jordan.claims) },
+  };
+}
+
 export function loadTrack(): TrackState {
   if (typeof localStorage === "undefined") return seedTrack();
   try {
@@ -247,7 +265,7 @@ export function loadTrack(): TrackState {
     if (!raw) return seedTrack();
     const parsed = JSON.parse(raw) as TrackState;
     if (!parsed?.sides?.alex?.claims || !parsed?.sides?.jordan?.claims) return seedTrack();
-    return parsed;
+    return { ...parsed, sides: uniqueSides(parsed.sides) };
   } catch {
     return seedTrack();
   }
@@ -379,7 +397,7 @@ export function useClaimTrack() {
           const created = await createClaimMatter(snapshot);
           const saved = {
             ...snapshot,
-            sides: created.sides ?? snapshot.sides,
+            sides: created.sides ? uniqueSides(created.sides) : snapshot.sides,
             matterId: created.id,
             server: "saved" as const,
           };

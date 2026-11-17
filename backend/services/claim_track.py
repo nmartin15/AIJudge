@@ -308,19 +308,17 @@ class DbClaimStore:
 
     async def create(self, payload: dict) -> tuple[str, dict]:
         matter = ClaimMatter(step=str(payload.get("step") or "welcome"), owner=payload.get("owner"))
-        self.db.add(matter)
-        await self.db.flush()
         for owner, side in (payload.get("sides") or {}).items():
             if owner not in VIEWERS or not isinstance(side, dict):
                 continue
             self._append_side(matter, owner, side)
+        self.db.add(matter)
         saved = await self._saved(matter)
         return str(matter.id), saved
 
     def _append_side(self, matter: ClaimMatter, owner: str, side: dict) -> ClaimSide:
         header = _header(side)
         row = ClaimSide(
-            matter=matter,
             owner=owner,
             name=header["name"],
             other_name=header["otherName"],
@@ -329,9 +327,9 @@ class DbClaimStore:
             private_gaps=header["privateGaps"],
             disputes=header["disputes"],
         )
+        matter.sides.append(row)
         for index, claim in enumerate(_claims(side.get("claims"))):
             entry = ClaimEntry(
-                side=row,
                 client_id=claim["id"],
                 text=claim["text"],
                 claim_date=claim["date"],
@@ -348,7 +346,6 @@ class DbClaimStore:
                     )
                 )
             row.claims.append(entry)
-        matter.sides.append(row)
         return row
 
     async def load(self, matter_id: str) -> dict | None:
@@ -385,13 +382,12 @@ class DbClaimStore:
         entry = self._entry(side, str(claim["id"]))
         if entry is None:
             entry = ClaimEntry(
-                side=side,
                 client_id=str(claim["id"]),
                 text=str(claim.get("text") or ""),
                 claim_date=str(claim.get("date") or ""),
                 position=len(side.claims),
             )
-            self.db.add(entry)
+            side.claims.append(entry)
         else:
             entry.text = str(claim.get("text") or "")
             entry.claim_date = str(claim.get("date") or "")
